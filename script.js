@@ -4,20 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');
     const tenorBulanInput = document.getElementById('tenor-bulan');
     const resultsDisplay = document.getElementById('results-display');
-    const articlesFeed = document.getElementById('articles-feed'); // Get articles feed element
+    const articlesFeed = document.getElementById('articles-feed');
 
-    let activeLoanType = 'pinjol'; // Default active tab
-    let allLenderData = {}; // To store fetched lender data
+    let activeLoanType = 'pinjol';
+    let allLenderData = {}; 
 
     // >>>>> IMPORTANT: REPLACE THIS WITH YOUR LIVE GLITCH BACKEND URL <<<<<
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
-    // Example: const BACKEND_URL = 'https://your-backend-project-name.glitch.me';
     // Make sure this matches the URL you found for your Glitch project.
 
     // Function to fetch daily article from backend
     async function fetchArticles() {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/article/daily`); // Endpoint for daily article
+            const response = await fetch(`${BACKEND_URL}/api/article/daily`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -29,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  return;
             }
 
-            articlesFeed.innerHTML = ''; // Clear previous articles
+            articlesFeed.innerHTML = '';
             const articleCard = document.createElement('div');
             articleCard.classList.add('article-card');
             articleCard.innerHTML = `
@@ -112,11 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const calculations = lenders.map(lender => {
-            const monthlyRate = lender.interestRate;
+            const monthlyRate = lender.interestRate; // This is now 0.03 (decimal)
             const monthlyPayment = calculateMonthlyPayment(loanAmount, monthlyRate, tenorMonths);
             const totalPayment = monthlyPayment * tenorMonths;
             const totalInterest = totalPayment - loanAmount;
-            const receivedAmount = loanAmount - (lender.adminFee || 0); 
+            
+            // Calculate actual admin fee amount for display
+            // lender.adminFeePercentage is the percentage from the sheet (e.g., 1 for 1%)
+            const adminFeeAmount = loanAmount * (lender.adminFeePercentage / 100); 
+            const receivedAmount = loanAmount - adminFeeAmount;
 
             return {
                 lender: {
@@ -130,8 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     total_payment: totalPayment,
                     total_interest: totalInterest,
                     received_amount: receivedAmount,
-                    interest_rate: lender.interestRate,
-                    admin_fee: lender.adminFee || 0
+                    interest_rate_display: (lender.interestRate * 100).toFixed(2), // 0.03 * 100 = 3.00
+                    admin_fee_percentage_display: lender.adminFeePercentage.toFixed(2), // 1.00
+                    admin_fee_amount_display: adminFeeAmount // Calculated amount (e.g., 100000)
                 }
             };
         }).sort((a, b) => a.calculation.monthly_payment - b.calculation.monthly_payment);
@@ -151,8 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="lender-details">
                         <p>Cicilan/Bulan: <span class="highlight">Rp ${Math.round(calc.monthly_payment).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
                         <p>Pinjaman Diterima: <span class="highlight">Rp ${Math.round(calc.received_amount).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
-                        <p>Suku Bunga: ${ (calc.interest_rate * 100).toFixed(2) }% per bulan</p>
-                        <p>Biaya Admin: ${ Math.round(calc.admin_fee).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })})</p>
+                        <p>Suku Bunga: ${ calc.interest_rate_display }% per bulan</p> 
+                        <p>Biaya Admin: ${ Math.round(calc.admin_fee_amount_display).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })})</p>
                     </div>
                     <div class="lender-contact">
                         <a href="${lender.website}" target="_blank"><i class="fas fa-globe"></i> Website</a>
@@ -170,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             activeLoanType = button.dataset.tab;
-            resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>'; // Clear results when tab changes
+            resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>';
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
                  renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value));
             }

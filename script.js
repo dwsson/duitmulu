@@ -4,19 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');
     const tenorBulanInput = document.getElementById('tenor-bulan');
     const resultsDisplay = document.getElementById('results-display');
-    const articlesFeed = document.getElementById('articles-feed');
+    const articlesFeed = document.getElementById('articles-feed'); // Get articles feed element
 
-    let activeLoanType = 'pinjol';
-    let allLenderData = {}; 
+    let activeLoanType = 'pinjol'; // Default active tab
+    let allLenderData = {}; // To store fetched lender data
 
     // >>>>> IMPORTANT: REPLACE THIS WITH YOUR LIVE GLITCH BACKEND URL <<<<<
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
+    // Example: const BACKEND_URL = 'https://your-backend-project-name.glitch.me';
     // Make sure this matches the URL you found for your Glitch project.
 
     // Function to fetch daily article from backend
     async function fetchArticles() {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/article/daily`);
+            const response = await fetch(`${BACKEND_URL}/api/article/daily`); // Endpoint for daily article
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -28,15 +29,47 @@ document.addEventListener('DOMContentLoaded', () => {
                  return;
             }
 
-            articlesFeed.innerHTML = '';
+            articlesFeed.innerHTML = ''; // Clear previous articles
             const articleCard = document.createElement('div');
             articleCard.classList.add('article-card');
+
+            const snippet = article.content.substring(0, 200); // Display first 200 characters
+            const fullContent = article.content;
+
             articleCard.innerHTML = `
                 <h3>${article.title}</h3>
-                <p>${article.content.substring(0, 150)}...</p> 
-                <a href="#">Baca Selengkapnya</a>
+                <p class="article-content-wrapper">
+                    <span class="article-snippet">${snippet}</span><span class="article-ellipsis">...</span>
+                    <span class="article-full" style="display: none;">${fullContent}</span>
+                </p>
+                <a href="#" class="read-more-btn">Baca Selengkapnya</a>
             `;
             articlesFeed.appendChild(articleCard);
+
+            // Add event listener for the new "Baca Selengkapnya" button
+            const readMoreBtn = articleCard.querySelector('.read-more-btn');
+            readMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default link behavior (page jump)
+                const contentWrapper = readMoreBtn.previousElementSibling; // The <p> tag
+                const snippetSpan = contentWrapper.querySelector('.article-snippet');
+                const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
+                const fullSpan = contentWrapper.querySelector('.article-full');
+
+                if (fullSpan.style.display === 'none') {
+                    // Expand: show full content, hide snippet/ellipsis
+                    snippetSpan.style.display = 'none';
+                    ellipsisSpan.style.display = 'none';
+                    fullSpan.style.display = 'inline'; // Or 'block' depending on desired layout
+                    readMoreBtn.textContent = 'Sembunyikan'; // Change button text
+                } else {
+                    // Collapse: show snippet, hide full content
+                    snippetSpan.style.display = 'inline';
+                    ellipsisSpan.style.display = 'inline';
+                    fullSpan.style.display = 'none';
+                    readMoreBtn.textContent = 'Baca Selengkapnya'; // Change button text
+                }
+            });
+
 
         } catch (error) {
             console.error('Error fetching articles:', error);
@@ -64,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             console.log('Lender data fetched:', allLenderData);
 
+            // If an active tab is already selected and inputs are filled, re-render results with fetched data
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
                  renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value));
             } else {
@@ -97,9 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Ensure lender data is loaded before rendering
         if (Object.keys(allLenderData).length === 0 || !allLenderData[activeLoanType]) {
             resultsDisplay.innerHTML = '<p style="color: orange;">Memuat data pemberi pinjaman... Silakan coba lagi sebentar.</p>';
-            fetchAllLenderData(); 
+            fetchAllLenderData(); // Try to refetch if not loaded
             return;
         }
 
@@ -111,13 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const calculations = lenders.map(lender => {
-            const monthlyRate = lender.interestRate; // This is now 0.03 (decimal)
+            const monthlyRate = lender.interestRate; // This is the 0.03 (decimal) from backend
             const monthlyPayment = calculateMonthlyPayment(loanAmount, monthlyRate, tenorMonths);
             const totalPayment = monthlyPayment * tenorMonths;
             const totalInterest = totalPayment - loanAmount;
             
-            // Calculate actual admin fee amount for display
-            // lender.adminFeePercentage is the percentage from the sheet (e.g., 1 for 1%)
+            // Calculate actual admin fee amount for display using percentage from backend
             const adminFeeAmount = loanAmount * (lender.adminFeePercentage / 100); 
             const receivedAmount = loanAmount - adminFeeAmount;
 
@@ -133,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     total_payment: totalPayment,
                     total_interest: totalInterest,
                     received_amount: receivedAmount,
-                    interest_rate_display: (lender.interestRate * 100).toFixed(2), // 0.03 * 100 = 3.00
-                    admin_fee_percentage_display: lender.adminFeePercentage.toFixed(2), // 1.00
-                    admin_fee_amount_display: adminFeeAmount // Calculated amount (e.g., 100000)
+                    interest_rate_display: (lender.interestRate * 100).toFixed(2), // 0.03 * 100 = 3.00 for display
+                    admin_fee_percentage_value: lender.adminFeePercentage, // The raw percentage from sheet (e.g., 1)
+                    admin_fee_amount_display: adminFeeAmount // Calculated amount (e.g., 100000) for display
                 }
             };
         }).sort((a, b) => a.calculation.monthly_payment - b.calculation.monthly_payment);

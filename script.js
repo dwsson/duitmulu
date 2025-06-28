@@ -123,6 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const n = tenorMonths;
         const numerator = principal * i * Math.pow((1 + i), n);
         const denominator = Math.pow((1 + i), n) - 1;
+           // --- NEW CONSOLE LOGS START HERE ---
+    console.log("(1 + i):", (1 + i));
+    console.log("Math.pow((1 + i), n):", Math.pow((1 + i), n));
+    console.log("Numerator:", numerator);
+    console.log("Denominator:", denominator);
+    console.log("Result:", numerator / denominator);
+    console.log("-----------------------");
+    // --- NEW CONSOLE LOGS END HERE ---
         return principal * (numerator / denominator);
     }
 

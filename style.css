@@ -112,13 +112,7 @@ h3 {
     color: var(--dark-purple);
 }
 
-.article-card p {
-    font-size: 0.95em;
-    color: #555;
-    margin-bottom: 15px;
-}
-
-/* Article Paragraph Justification (New CSS for "yang lurus") */
+/* Article Paragraph Justification (CSS for "yang lurus") */
 .article-content-wrapper {
     text-align: justify;
     line-height: 1.8; /* Improve readability with more line spacing */
@@ -160,7 +154,7 @@ h3 {
     border-top-right-radius: var(--border-radius);
 }
 
-/* Calculator Inputs */
+/* Calculator Inputs (includes fixes for consistent sizing) */
 .form-group {
     margin-bottom: 15px;
 }
@@ -172,13 +166,26 @@ h3 {
     color: var(--dark-purple);
 }
 
-.form-group input[type="number"], /* Updated to include type="text" for general input styles */
+.form-group input[type="number"], /* Target both number and text inputs */
 .form-group input[type="text"] { 
     width: calc(100% - 20px);
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc; /* Explicitly set border to override user agent defaults */
     border-radius: 5px;
     font-size: 1em;
+    /* --- FIXES FOR CONSISTENT SIZE --- */
+    -webkit-appearance: none; /* Remove default browser styling (for Chrome, Safari) */
+    -moz-appearance: none;    /* Remove default browser styling (for Firefox) */
+    appearance: none;         /* Standard property */
+    box-sizing: border-box;   /* Ensure padding and border are included in the width */
+    margin: 0;                /* Reset any default margins */
+}
+
+/* Optional: Hide the number input spin buttons specifically for WebKit browsers */
+.form-group input[type="number"]::-webkit-outer-spin-button,
+.form-group input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; /* Otherwise defaults to 0 value for appearance */
 }
 
 #calculate-button {

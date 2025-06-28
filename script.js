@@ -4,75 +4,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');
     const tenorBulanInput = document.getElementById('tenor-bulan');
     const resultsDisplay = document.getElementById('results-display');
+    const articlesFeed = document.getElementById('articles-feed'); // Get articles feed element
 
     let activeLoanType = 'pinjol'; // Default active tab
+    let allLenderData = {}; // To store fetched lender data
 
-    // Placeholder Lender Data (replace with actual data from Google Drive/API)
-    // In a real application, this would be fetched dynamically from your backend,
-    // which in turn reads from your Google Drive source.
-    const lenderData = {
-        pinjol: [
-            {
-                name: 'Kredit Kilat',
-                logo: 'https://via.placeholder.com/60?text=KK', // Replace with actual logo URL
-                interestRatePerMonth: 0.03, // 3% per month
-                adminFeePercentage: 0.02,   // 2% of loan amount
-                contactWeb: 'https://kreditkilat.com',
-                contactWhatsapp: '6281234567890'
-            },
-            {
-                name: 'Dana Express',
-                logo: 'https://via.placeholder.com/60?text=DE',
-                interestRatePerMonth: 0.025, // 2.5% per month
-                adminFeePercentage: 0.015,
-                contactWeb: 'https://danaexpress.co.id',
-                contactWhatsapp: '6287654321098'
+    // >>>>> IMPORTANT: REPLACE THIS WITH YOUR LIVE GLITCH BACKEND URL <<<<<
+    const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
+    // Example: const BACKEND_URL = 'https://your-backend-project-name.glitch.me';
+    // Make sure this matches the URL you found for your Glitch project.
+
+    // Function to fetch daily article from backend
+    async function fetchArticles() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/article/daily`); // Endpoint for daily article
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        ],
-        kpr: [
-            {
-                name: 'Bank Properti',
-                logo: 'https://via.placeholder.com/60?text=BP',
-                interestRatePerMonth: 0.005, // 0.5% per month (approx 6% annually)
-                adminFeePercentage: 0.005, // 0.5% of loan amount
-                contactWeb: 'https://bankproperti.com',
-                contactWhatsapp: '6281122334455'
-            },
-            {
-                name: 'Mortgage Solutions',
-                logo: 'https://via.placeholder.com/60?text=MS',
-                interestRatePerMonth: 0.0048, // 0.48% per month (approx 5.76% annually)
-                adminFeePercentage: 0.006,
-                contactWeb: 'https://mortgagesolutions.id',
-                contactWhatsapp: '6285566778899'
+            const data = await response.json(); 
+            const article = data.data; 
+
+            if (!article) {
+                 articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
+                 return;
             }
-        ],
-        kmg: [
-            {
-                name: 'Dana Jaminan',
-                logo: 'https://via.placeholder.com/60?text=DJ',
-                interestRatePerMonth: 0.012, // 1.2% per month
-                adminFeePercentage: 0.01,
-                contactWeb: 'https://danajaminan.com',
-                contactWhatsapp: '6281987654321'
-            },
-            {
-                name: 'Kredit Multiguna',
-                logo: 'https://via.placeholder.com/60?text=KM',
-                interestRatePerMonth: 0.011, // 1.1% per month
-                adminFeePercentage: 0.008,
-                contactWeb: 'https://kreditmultiguna.id',
-                contactWhatsapp: '6282345678901'
+
+            articlesFeed.innerHTML = ''; // Clear previous articles
+            const articleCard = document.createElement('div');
+            articleCard.classList.add('article-card');
+            articleCard.innerHTML = `
+                <h3>${article.title}</h3>
+                <p>${article.content.substring(0, 150)}...</p> 
+                <a href="#">Baca Selengkapnya</a>
+            `;
+            articlesFeed.appendChild(articleCard);
+
+        } catch (error) {
+            console.error('Error fetching articles:', error);
+            articlesFeed.innerHTML = '<p>Gagal memuat artikel dari backend. (Pastikan backend berjalan dan URL benar).</p>';
+        }
+    }
+
+    // Function to fetch lender data for all types from backend
+    async function fetchAllLenderData() {
+        try {
+            const [pinjolRes, kprRes, kmgRes] = await Promise.all([
+                fetch(`${BACKEND_URL}/api/lenders/pinjol`),
+                fetch(`${BACKEND_URL}/api/lenders/kpr`),
+                fetch(`${BACKEND_URL}/api/lenders/kmg`)
+            ]);
+
+            const pinjolData = await pinjolRes.json();
+            const kprData = await kprRes.json();
+            const kmgData = await kmgRes.json();
+
+            allLenderData = {
+                pinjol: pinjolData.data || [], 
+                kpr: kprData.data || [],
+                kmg: kmgData.data || []
+            };
+            console.log('Lender data fetched:', allLenderData);
+
+            if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
+                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value));
+            } else {
+                 resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor untuk melihat perbandingan.</p>';
             }
-        ]
-    };
+
+        } catch (error) {
+            console.error('Error fetching all lender data:', error);
+            resultsDisplay.innerHTML = '<p style="color: red;">Gagal memuat data pemberi pinjaman dari backend. (Pastikan server backend berjalan dan URL benar).</p>';
+        }
+    }
 
     // Function to calculate monthly installment (simplified)
-    // Uses the fixed annuity formula: M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1]
-    // M = Monthly Payment
-    // P = Principal Loan Amount
-    // i = Monthly Interest Rate (decimal)
-    // n = Number of Months (Tenor)
     function calculateMonthlyPayment(principal, monthlyInterestRate, tenorMonths) {
         if (monthlyInterestRate === 0) {
             return principal / tenorMonths;
@@ -88,22 +93,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResults(loanAmount, tenorMonths) {
         resultsDisplay.innerHTML = ''; // Clear previous results
 
-        if (loanAmount <= 0 || tenorMonths <= 0) {
+        if (isNaN(loanAmount) || loanAmount <= 0 || isNaN(tenorMonths) || tenorMonths <= 0) {
             resultsDisplay.innerHTML = '<p style="color: red;">Mohon masukkan jumlah pinjaman dan tenor yang valid.</p>';
             return;
         }
 
-        const lenders = lenderData[activeLoanType];
-
-        if (!lenders || lenders.length === 0) {
-            resultsDisplay.innerHTML = '<p>Tidak ada data pemberi pinjaman untuk kategori ini.</p>';
+        if (Object.keys(allLenderData).length === 0 || !allLenderData[activeLoanType]) {
+            resultsDisplay.innerHTML = '<p style="color: orange;">Memuat data pemberi pinjaman... Silakan coba lagi sebentar.</p>';
+            fetchAllLenderData(); 
             return;
         }
 
-        lenders.forEach(lender => {
-            const adminFee = loanAmount * lender.adminFeePercentage;
-            const receivedAmount = loanAmount - adminFee;
-            const monthlyPayment = calculateMonthlyPayment(loanAmount, lender.interestRatePerMonth, tenorMonths);
+        const lenders = allLenderData[activeLoanType];
+
+        if (!lenders || lenders.length === 0) {
+            resultsDisplay.innerHTML = `<p>Tidak ada data pemberi pinjaman untuk kategori ${activeLoanType}.</p>`;
+            return;
+        }
+
+        const calculations = lenders.map(lender => {
+            const monthlyRate = lender.interestRate;
+            const monthlyPayment = calculateMonthlyPayment(loanAmount, monthlyRate, tenorMonths);
+            const totalPayment = monthlyPayment * tenorMonths;
+            const totalInterest = totalPayment - loanAmount;
+            const receivedAmount = loanAmount - (lender.adminFee || 0); 
+
+            return {
+                lender: {
+                    name: lender.name,
+                    logo: lender.logo,
+                    website: lender.website,
+                    whatsapp: lender.whatsapp
+                },
+                calculation: {
+                    monthly_payment: monthlyPayment,
+                    total_payment: totalPayment,
+                    total_interest: totalInterest,
+                    received_amount: receivedAmount,
+                    interest_rate: lender.interestRate,
+                    admin_fee: lender.adminFee || 0
+                }
+            };
+        }).sort((a, b) => a.calculation.monthly_payment - b.calculation.monthly_payment);
+
+
+        calculations.forEach(item => {
+            const lender = item.lender;
+            const calc = item.calculation;
 
             const lenderCard = document.createElement('div');
             lenderCard.classList.add('lender-card');
@@ -113,14 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="lender-info">
                     <p class="lender-name">${lender.name}</p>
                     <div class="lender-details">
-                        <p>Cicilan/Bulan: <span class="highlight">Rp ${monthlyPayment.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
-                        <p>Pinjaman Diterima: <span class="highlight">Rp ${receivedAmount.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
-                        <p>Suku Bunga: ${ (lender.interestRatePerMonth * 100).toFixed(2) }% per bulan</p>
-                        <p>Biaya Admin: ${ (lender.adminFeePercentage * 100).toFixed(2) }% (${adminFee.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })})</p>
+                        <p>Cicilan/Bulan: <span class="highlight">Rp ${Math.round(calc.monthly_payment).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
+                        <p>Pinjaman Diterima: <span class="highlight">Rp ${Math.round(calc.received_amount).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
+                        <p>Suku Bunga: ${ (calc.interest_rate * 100).toFixed(2) }% per bulan</p>
+                        <p>Biaya Admin: ${ Math.round(calc.admin_fee).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })})</p>
                     </div>
                     <div class="lender-contact">
-                        <a href="${lender.contactWeb}" target="_blank"><i class="fas fa-globe"></i> Website</a>
-                        <a href="https://wa.me/${lender.contactWhatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                        <a href="${lender.website}" target="_blank"><i class="fas fa-globe"></i> Website</a>
+                        <a href="https://wa.me/${lender.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
                     </div>
                 </div>
             `;
@@ -135,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
             activeLoanType = button.dataset.tab;
             resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>'; // Clear results when tab changes
+            if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
+                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value));
+            }
         });
     });
 
@@ -152,4 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
     tenorBulanInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') calculateButton.click();
     });
+
+    // Initial data fetch when the page loads
+    fetchArticles(); 
+    fetchAllLenderData(); 
 });

@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>Cicilan/Bulan: <span class="highlight">Rp ${Math.round(calc.monthly_payment).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
                         <p>Pinjaman Diterima: <span class="highlight">Rp ${Math.round(calc.received_amount).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></p>
                         <p>Suku Bunga: ${ calc.interest_rate_display }% per bulan</p> 
-                        <p>Biaya Admin: ${ Math.round(calc.admin_fee_amount_display).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })})</p>
+                        <p>Biaya Admin: ${ Math.round(calc.admin_fee_amount_display).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                     </div>
                     <div class="lender-contact">
                         <a href="${lender.website}" target="_blank"><i class="fas fa-globe"></i> Website</a>

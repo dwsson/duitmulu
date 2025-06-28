@@ -116,6 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to calculate monthly installment (simplified)
     function calculateMonthlyPayment(principal, monthlyInterestRate, tenorMonths) {
+        // --- CALCULATION DEBUG LOGS START HERE ---
+        console.log("--- Calculation Debug ---");
+        console.log("Principal (P):", principal);
+        console.log("Monthly Interest Rate (i):", monthlyInterestRate);
+        console.log("Tenor (n):", tenorMonths);
+        // --- CALCULATION DEBUG LOGS END HERE ---
+
         if (monthlyInterestRate === 0) {
             return principal / tenorMonths;
         }
@@ -123,15 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const n = tenorMonths;
         const numerator = principal * i * Math.pow((1 + i), n);
         const denominator = Math.pow((1 + i), n) - 1;
-           // --- NEW CONSOLE LOGS START HERE ---
-    console.log("(1 + i):", (1 + i));
-    console.log("Math.pow((1 + i), n):", Math.pow((1 + i), n));
-    console.log("Numerator:", numerator);
-    console.log("Denominator:", denominator);
-    console.log("Result:", numerator / denominator);
-    console.log("-----------------------");
-    // --- NEW CONSOLE LOGS END HERE ---
-        return principal * (numerator / denominator);
+
+        // --- CALCULATION DEBUG LOGS START HERE ---
+        console.log("(1 + i):", (1 + i));
+        console.log("Math.pow((1 + i), n):", Math.pow((1 + i), n));
+        console.log("Numerator:", numerator);
+        console.log("Denominator:", denominator);
+        console.log("Result:", numerator / denominator);
+        console.log("-----------------------");
+        // --- CALCULATION DEBUG LOGS END HERE ---
+
+        return numerator / denominator;
     }
 
     // Function to render results
@@ -221,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
             activeLoanType = button.dataset.tab;
             resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>';
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
-                 // No cleanNumber here after rollback
                  renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); 
             }
         });
@@ -229,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for calculation button
     calculateButton.addEventListener('click', () => {
-        const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value); // No cleanNumber here after rollback
+        const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value); 
         const tenorBulan = parseInt(tenorBulanInput.value);
         renderResults(jumlahPinjaman, tenorBulan);
     });
@@ -238,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     jumlahPinjamanInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') calculateButton.click();
     });
-    tenorBulanInput.addEventListener('keypress', (e) => { // Original code only had jumlahPinjamanInput, adding this for consistency if it was desired.
+    tenorBulanInput.addEventListener('keypress', (e) => { // Adding this for consistency if it was desired.
         if (e.key === 'Enter') calculateButton.click();
     });
 

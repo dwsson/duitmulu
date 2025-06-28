@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const calculateButton = document.getElementById('calculate-button');
-    const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman'); // Now a text input
+    const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman'); // Back to number input
     const tenorBulanInput = document.getElementById('tenor-bulan');
     const resultsDisplay = document.getElementById('results-display');
     const articlesFeed = document.getElementById('articles-feed'); 
@@ -11,33 +11,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
 
-    // Helper function to format number with thousands separator
+    // REMOVE these two helper functions:
+    /*
     function formatNumber(num) {
-        return num.toLocaleString('id-ID'); // Uses Indonesia locale for dot separator
+        return num.toLocaleString('id-ID'); 
     }
 
-    // Helper function to clean number (remove dots for parsing)
     function cleanNumber(numString) {
-        return numString.replace(/\./g, ''); // Remove all dots
+        return numString.replace(/\./g, ''); 
     }
+    */
 
-    // Add event listener to format input as user types
+    // REMOVE this event listener:
+    /*
     jumlahPinjamanInput.addEventListener('input', (e) => {
-        const rawValue = cleanNumber(e.target.value); // Get value without dots
+        const rawValue = cleanNumber(e.target.value); 
         if (rawValue === '') {
             e.target.value = '';
             return;
         }
         const number = parseInt(rawValue, 10);
         if (!isNaN(number)) {
-            e.target.value = formatNumber(number); // Format and set back to input
+            e.target.value = formatNumber(number); 
         } else {
-            // Handle cases where non-numeric input is typed
-            e.target.value = rawValue; // Keep raw if not a number
+            e.target.value = rawValue; 
         }
     });
+    */
 
-    // ... (rest of your fetchArticles function)
+    // ... (rest of your fetchArticles function - this remains the same as latest)
     async function fetchArticles() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/article/daily`);
@@ -109,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const pinjolData = await pinjolRes.json();
             const kprData = await kprRes.json();
-            const kmgData = await kmgRes.json();
+            const kmgData = await kmgData.json();
 
             allLenderData = {
                 pinjol: pinjolData.data || [], 
@@ -118,8 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             console.log('Lender data fetched:', allLenderData);
 
+            // REMOVE cleanNumber from here:
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
-                 renderResults(parseFloat(cleanNumber(jumlahPinjamanInput.value)), parseInt(tenorBulanInput.value)); // Use cleanNumber here
+                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); 
             } else {
                  resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor untuk melihat perbandingan.</p>';
             }
@@ -228,25 +231,39 @@ document.addEventListener('DOMContentLoaded', () => {
             activeLoanType = button.dataset.tab;
             resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>';
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
-                 renderResults(parseFloat(cleanNumber(jumlahPinjamanInput.value)), parseInt(tenorBulanInput.value)); // Use cleanNumber here
+                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); // REMOVE cleanNumber
             }
         });
     });
 
     // Event listener for calculation button
     calculateButton.addEventListener('click', () => {
-        const jumlahPinjaman = parseFloat(cleanNumber(jumlahPinjamanInput.value)); // Use cleanNumber here
+        const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value); // REMOVE cleanNumber
         const tenorBulan = parseInt(tenorBulanInput.value);
         renderResults(jumlahPinjaman, tenorBulan);
     });
 
     // Optional: Trigger calculation on Enter key in input fields
+    // REMOVE this entire block if you want to completely revert formatting
+    /*
     jumlahPinjamanInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') calculateButton.click();
     });
     tenorBulanInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') calculateButton.click();
     });
+    */
+    // If you remove the above, also remove the tenorBulanInput keypress listener if present
+    // Original only had jumlahPinjamanInput keypress
+
+    // The original script did not have keypress listeners for both.
+    // Let's ensure the original keypress logic is restored if desired.
+    jumlahPinjamanInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') calculateButton.click();
+    });
+    // If tenorBulanInput had a keypress listener, it would also be removed here.
+    // As per the original code, only jumlahPinjamanInput had it.
+
 
     // Initial data fetch when the page loads
     fetchArticles(); 

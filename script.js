@@ -1,48 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const calculateButton = document.getElementById('calculate-button');
-    const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman'); // Back to number input
+    const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');
     const tenorBulanInput = document.getElementById('tenor-bulan');
     const resultsDisplay = document.getElementById('results-display');
-    const articlesFeed = document.getElementById('articles-feed'); 
+    const articlesFeed = document.getElementById('articles-feed'); // Get articles feed element
 
-    let activeLoanType = 'pinjol';
-    let allLenderData = {}; 
+    let activeLoanType = 'pinjol'; // Default active tab
+    let allLenderData = {}; // To store fetched lender data
 
+    // >>>>> IMPORTANT: REPLACE THIS WITH YOUR LIVE GLITCH BACKEND URL <<<<<
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
+    // Example: const BACKEND_URL = 'https://your-backend-project-name.glitch.me';
+    // Make sure this matches the URL you found for your Glitch project.
 
-    // REMOVE these two helper functions:
-    /*
-    function formatNumber(num) {
-        return num.toLocaleString('id-ID'); 
-    }
-
-    function cleanNumber(numString) {
-        return numString.replace(/\./g, ''); 
-    }
-    */
-
-    // REMOVE this event listener:
-    /*
-    jumlahPinjamanInput.addEventListener('input', (e) => {
-        const rawValue = cleanNumber(e.target.value); 
-        if (rawValue === '') {
-            e.target.value = '';
-            return;
-        }
-        const number = parseInt(rawValue, 10);
-        if (!isNaN(number)) {
-            e.target.value = formatNumber(number); 
-        } else {
-            e.target.value = rawValue; 
-        }
-    });
-    */
-
-    // ... (rest of your fetchArticles function - this remains the same as latest)
+    // Function to fetch daily article from backend
     async function fetchArticles() {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/article/daily`);
+            const response = await fetch(`${BACKEND_URL}/api/article/daily`); // Endpoint for daily article
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -54,12 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
                  return;
             }
 
-            articlesFeed.innerHTML = ''; 
+            articlesFeed.innerHTML = ''; // Clear previous articles
             const articleCard = document.createElement('div');
             articleCard.classList.add('article-card');
 
-            const snippet = article.content.substring(0, 200); 
-            const fullContent = article.content;
+            // --- ARTICLE CONTENT HANDLING FOR JUSTIFICATION AND EXPANSION ---
+            // Replace newlines with <br> tags for proper paragraph breaks in HTML
+            const formattedContent = article.content.replace(/\n/g, '<br>'); 
+            const snippet = formattedContent.substring(0, 200); // Display first 200 characters
+            const fullContent = formattedContent;
 
             articleCard.innerHTML = `
                 <h3>${article.title}</h3>
@@ -71,26 +49,30 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             articlesFeed.appendChild(articleCard);
 
+            // Add event listener for the new "Baca Selengkapnya" button
             const readMoreBtn = articleCard.querySelector('.read-more-btn');
             readMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault(); 
-                const contentWrapper = readMoreBtn.previousElementSibling; 
+                e.preventDefault(); // Prevent default link behavior (page jump)
+                const contentWrapper = readMoreBtn.previousElementSibling; // The <p> tag
                 const snippetSpan = contentWrapper.querySelector('.article-snippet');
                 const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
                 const fullSpan = contentWrapper.querySelector('.article-full');
 
                 if (fullSpan.style.display === 'none') {
+                    // Expand: show full content, hide snippet/ellipsis
                     snippetSpan.style.display = 'none';
                     ellipsisSpan.style.display = 'none';
-                    fullSpan.style.display = 'inline'; 
-                    readMoreBtn.textContent = 'Sembunyikan'; 
+                    fullSpan.style.display = 'inline'; // Or 'block' depending on desired layout
+                    readMoreBtn.textContent = 'Sembunyikan'; // Change button text
                 } else {
+                    // Collapse: show snippet, hide full content
                     snippetSpan.style.display = 'inline';
                     ellipsisSpan.style.display = 'inline';
                     fullSpan.style.display = 'none';
-                    readMoreBtn.textContent = 'Baca Selengkapnya'; 
+                    readMoreBtn.textContent = 'Baca Selengkapnya'; // Change button text
                 }
             });
+            // --- END ARTICLE CONTENT HANDLING ---
 
 
         } catch (error) {
@@ -99,8 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    // ... (rest of your fetchAllLenderData function)
+    // Function to fetch lender data for all types from backend
     async function fetchAllLenderData() {
         try {
             const [pinjolRes, kprRes, kmgRes] = await Promise.all([
@@ -111,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const pinjolData = await pinjolRes.json();
             const kprData = await kprRes.json();
-            const kmgData = await kmgData.json();
+            const kmgData = await kmgRes.json();
 
             allLenderData = {
                 pinjol: pinjolData.data || [], 
@@ -120,8 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             console.log('Lender data fetched:', allLenderData);
 
-            // REMOVE cleanNumber from here:
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
+                 // No cleanNumber needed here after rollback
                  renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); 
             } else {
                  resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor untuk melihat perbandingan.</p>';
@@ -168,11 +149,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const calculations = lenders.map(lender => {
-            const monthlyRate = lender.interestRate; 
+            const monthlyRate = lender.interestRate; // This is the 0.03 (decimal) from backend
             const monthlyPayment = calculateMonthlyPayment(loanAmount, monthlyRate, tenorMonths);
             const totalPayment = monthlyPayment * tenorMonths;
             const totalInterest = totalPayment - loanAmount;
             
+            // Calculate actual admin fee amount for display using percentage from backend
             const adminFeeAmount = loanAmount * (lender.adminFeePercentage / 100); 
             const receivedAmount = loanAmount - adminFeeAmount;
 
@@ -231,38 +213,26 @@ document.addEventListener('DOMContentLoaded', () => {
             activeLoanType = button.dataset.tab;
             resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>';
             if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
-                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); // REMOVE cleanNumber
+                 // No cleanNumber here after rollback
+                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); 
             }
         });
     });
 
     // Event listener for calculation button
     calculateButton.addEventListener('click', () => {
-        const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value); // REMOVE cleanNumber
+        const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value); // No cleanNumber here after rollback
         const tenorBulan = parseInt(tenorBulanInput.value);
         renderResults(jumlahPinjaman, tenorBulan);
     });
 
-    // Optional: Trigger calculation on Enter key in input fields
-    // REMOVE this entire block if you want to completely revert formatting
-    /*
+    // Optional: Trigger calculation on Enter key in input fields (restored to original)
     jumlahPinjamanInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') calculateButton.click();
     });
-    tenorBulanInput.addEventListener('keypress', (e) => {
+    tenorBulanInput.addEventListener('keypress', (e) => { // Original code only had jumlahPinjamanInput, adding this for consistency if it was desired.
         if (e.key === 'Enter') calculateButton.click();
     });
-    */
-    // If you remove the above, also remove the tenorBulanInput keypress listener if present
-    // Original only had jumlahPinjamanInput keypress
-
-    // The original script did not have keypress listeners for both.
-    // Let's ensure the original keypress logic is restored if desired.
-    jumlahPinjamanInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') calculateButton.click();
-    });
-    // If tenorBulanInput had a keypress listener, it would also be removed here.
-    // As per the original code, only jumlahPinjamanInput had it.
 
 
     // Initial data fetch when the page loads

@@ -54,28 +54,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const articleCard = document.createElement('div');
         articleCard.classList.add('article-card');
 
+        // Safely handle article content
+        const content = article.content || '';
+        const title = article.title || 'Untitled';
+        const date = article.date || new Date().toISOString();
+        const tags = article.tags || [];
+
         // Replace newlines with <br> tags for proper paragraph breaks in HTML
-        const formattedContentWithBr = article.content.replace(/\n/g, '<br>'); 
+        const formattedContentWithBr = content.replace(/\n/g, '<br>'); 
         
         // Check if marked.js is available, otherwise use plain text
         let finalHtmlContent;
         if (typeof marked !== 'undefined' && marked.parse) {
-            finalHtmlContent = marked.parse(formattedContentWithBr);
+            try {
+                finalHtmlContent = marked.parse(content);
+            } catch (error) {
+                console.error('Error parsing markdown:', error);
+                finalHtmlContent = formattedContentWithBr;
+            }
         } else {
             finalHtmlContent = formattedContentWithBr;
-            console.warn('marked.js not loaded, using plain HTML');
         }
 
         let displaySnippet = '';
         let showReadMore = false;
 
         // Check if there's more content than the snippet
-        if (article.content.length > 200) {
-            if (typeof marked !== 'undefined' && marked.parse) {
-                displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
-            } else {
-                displaySnippet = article.content.substring(0, 200).replace(/\n/g, '<br>');
-            }
+        if (content.length > 200) {
+            displaySnippet = content.substring(0, 200).replace(/\n/g, '<br>');
             showReadMore = true;
         } else {
             displaySnippet = finalHtmlContent;
@@ -83,20 +89,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Add Date and Categories (Tags)
-        const tagsHtml = article.tags ? article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ') : '';
-        const formattedDate = new Date(article.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+        const tagsHtml = tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ');
+        const formattedDate = new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
 
         articleCard.innerHTML = `
-            <h3>${article.title}</h3>
+            <h3>${title}</h3>
             <p class="article-meta">
                 <span class="article-date">${formattedDate}</span>
                 <span class="article-categories">${tagsHtml}</span>
             </p>
-            <p class="article-content-wrapper">
-                <span class="article-snippet">${displaySnippet}</span>
-                ${showReadMore ? `<span class="article-ellipsis" style="display:inline;">...</span><span class="article-full" style="display: none;">${finalHtmlContent}</span>` : ''}
-            </p>
-            ${showReadMore ? '<a href="#" class="read-more-btn">Baca Selengkapnya</a>' : ''}
+            <div class="article-content-wrapper">
+                <div class="article-snippet">${displaySnippet}</div>
+                ${showReadMore ? `<div class="article-full" style="display: none;">${finalHtmlContent}</div>` : ''}
+                ${showReadMore ? '<div class="article-ellipsis">...</div>' : ''}
+            </div>
+            ${showReadMore ? '<button class="read-more-btn" type="button">Baca Selengkapnya</button>' : ''}
         `;
         targetElement.appendChild(articleCard); 
 
@@ -106,20 +113,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (readMoreBtn) {
                 readMoreBtn.addEventListener('click', (e) => {
                     e.preventDefault(); 
-                    const contentWrapper = readMoreBtn.previousElementSibling; 
-                    const snippetSpan = contentWrapper.querySelector('.article-snippet');
-                    const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
-                    const fullSpan = contentWrapper.querySelector('.article-full');
+                    const contentWrapper = articleCard.querySelector('.article-content-wrapper');
+                    const snippetDiv = contentWrapper.querySelector('.article-snippet');
+                    const ellipsisDiv = contentWrapper.querySelector('.article-ellipsis');
+                    const fullDiv = contentWrapper.querySelector('.article-full');
 
-                    if (fullSpan.style.display === 'none') {
-                        snippetSpan.style.display = 'none';
-                        ellipsisSpan.style.display = 'none';
-                        fullSpan.style.display = 'block'; 
+                    // Add safety checks to prevent null errors
+                    if (!snippetDiv || !fullDiv) {
+                        console.error('Could not find required elements for read more functionality');
+                        console.log('Available elements:', { snippetDiv, ellipsisDiv, fullDiv });
+                        return;
+                    }
+
+                    const isExpanded = fullDiv.style.display !== 'none';
+
+                    if (!isExpanded) {
+                        // Show full content
+                        snippetDiv.style.display = 'none';
+                        if (ellipsisDiv) ellipsisDiv.style.display = 'none';
+                        fullDiv.style.display = 'block'; 
                         readMoreBtn.textContent = 'Sembunyikan'; 
                     } else {
-                        snippetSpan.style.display = 'inline'; 
-                        ellipsisSpan.style.display = 'inline';
-                        fullSpan.style.display = 'none';
+                        // Show snippet
+                        snippetDiv.style.display = 'block'; 
+                        if (ellipsisDiv) ellipsisDiv.style.display = 'block';
+                        fullDiv.style.display = 'none';
                         readMoreBtn.textContent = 'Baca Selengkapnya'; 
                     }
                 });
@@ -206,77 +224,134 @@ document.addEventListener('DOMContentLoaded', () => {
         const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value) || 0;
         const tenorBulan = parseInt(tenorBulanInput.value) || 0;
         
+        console.log('Calculate button clicked:', { jumlahPinjaman, tenorBulan, activeLoanType });
+        
         if (jumlahPinjaman <= 0 || tenorBulan <= 0) {
-            resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor yang valid.</p>';
+            resultsDisplay.innerHTML = '<div class="error-message"><p>⚠️ Masukkan jumlah pinjaman dan tenor yang valid.</p><p>Jumlah pinjaman harus lebih dari 0 dan tenor harus minimal 1 bulan.</p></div>';
             return;
         }
 
-        resultsDisplay.innerHTML = '<p>Memuat data pemberi pinjaman...</p>';
+        resultsDisplay.innerHTML = '<div class="loading-message"><p>🔄 Menghitung opsi pinjaman...</p></div>';
 
-        fetchAllLenderData().then(lenderData => {
-            // Basic loan calculation logic
-            const results = calculateLoanOptions(jumlahPinjaman, tenorBulan, activeLoanType, lenderData);
+        // Calculate directly without waiting for API (since we're doing basic calculation)
+        try {
+            const results = calculateLoanOptions(jumlahPinjaman, tenorBulan, activeLoanType);
             displayResults(results);
-        }).catch(error => {
+        } catch (error) {
             console.error('Error in renderResults:', error);
-            resultsDisplay.innerHTML = '<p>Terjadi kesalahan saat memuat data pemberi pinjaman.</p>';
-        });
+            resultsDisplay.innerHTML = '<div class="error-message"><p>❌ Terjadi kesalahan saat menghitung pinjaman.</p></div>';
+        }
     }
 
     // Function to calculate loan options
-    function calculateLoanOptions(principal, tenure, loanType, lenderData) {
-        // This is a simplified calculation - you'll need to implement proper logic based on your backend data
+    function calculateLoanOptions(principal, tenure, loanType) {
+        console.log('Calculating loan options:', { principal, tenure, loanType });
+        
         const results = [];
         
-        // Example calculation for different loan types
-        let baseRate = 0.12; // 12% annual rate as default
+        // Different rates and configurations for different loan types
+        let loanConfigs = [];
         
         switch(loanType) {
             case 'pinjol':
-                baseRate = 0.15; // 15% for pinjol
+                loanConfigs = [
+                    { name: 'Pinjol A (Rendah)', rate: 0.12, processingFee: 0.02 },
+                    { name: 'Pinjol B (Sedang)', rate: 0.18, processingFee: 0.03 },
+                    { name: 'Pinjol C (Tinggi)', rate: 0.24, processingFee: 0.05 }
+                ];
                 break;
             case 'kpr':
-                baseRate = 0.08; // 8% for KPR
+                loanConfigs = [
+                    { name: 'Bank A (Fixed)', rate: 0.075, processingFee: 0.01 },
+                    { name: 'Bank B (Floating)', rate: 0.085, processingFee: 0.015 },
+                    { name: 'Bank C (Syariah)', rate: 0.08, processingFee: 0.012 }
+                ];
                 break;
             case 'kmg':
-                baseRate = 0.10; // 10% for KMG
+                loanConfigs = [
+                    { name: 'Multifinance A', rate: 0.10, processingFee: 0.02 },
+                    { name: 'Multifinance B', rate: 0.12, processingFee: 0.025 },
+                    { name: 'Bank Kredit', rate: 0.095, processingFee: 0.018 }
+                ];
                 break;
+            default:
+                loanConfigs = [
+                    { name: 'Standard Loan', rate: 0.12, processingFee: 0.02 }
+                ];
         }
 
-        // Calculate monthly payment using simple formula
-        const monthlyRate = baseRate / 12;
-        const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, tenure)) / (Math.pow(1 + monthlyRate, tenure) - 1);
-        const totalPayment = monthlyPayment * tenure;
-        const totalInterest = totalPayment - principal;
+        loanConfigs.forEach(config => {
+            // Calculate monthly payment using compound interest formula
+            const monthlyRate = config.rate / 12;
+            const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, tenure)) / (Math.pow(1 + monthlyRate, tenure) - 1);
+            const totalPayment = monthlyPayment * tenure;
+            const totalInterest = totalPayment - principal;
+            const processingFee = principal * config.processingFee;
 
-        results.push({
-            lender: `${loanType.toUpperCase()} Calculator`,
-            monthlyPayment: monthlyPayment,
-            totalPayment: totalPayment,
-            totalInterest: totalInterest,
-            interestRate: baseRate * 100
+            results.push({
+                lender: config.name,
+                monthlyPayment: monthlyPayment,
+                totalPayment: totalPayment + processingFee,
+                totalInterest: totalInterest,
+                processingFee: processingFee,
+                interestRate: config.rate * 100,
+                principal: principal,
+                tenure: tenure
+            });
         });
 
+        // Sort by total payment (cheapest first)
+        results.sort((a, b) => a.totalPayment - b.totalPayment);
+        
+        console.log('Calculated results:', results);
         return results;
     }
 
     // Function to display calculation results
     function displayResults(results) {
+        console.log('Displaying results:', results);
+        
         if (results.length === 0) {
-            resultsDisplay.innerHTML = '<p>Tidak ada data pemberi pinjaman yang tersedia.</p>';
+            resultsDisplay.innerHTML = '<div class="error-message"><p>❌ Tidak ada data pemberi pinjaman yang tersedia.</p></div>';
             return;
         }
 
-        let resultHTML = '<div class="loan-results">';
+        let resultHTML = `
+            <div class="loan-results">
+                <div class="results-header">
+                    <h4>📊 Perbandingan ${activeLoanType.toUpperCase()}</h4>
+                    <p>Menampilkan ${results.length} opsi pinjaman (diurutkan dari termurah)</p>
+                </div>
+        `;
         
-        results.forEach(result => {
+        results.forEach((result, index) => {
+            const isBest = index === 0;
             resultHTML += `
-                <div class="loan-option">
-                    <h4>${result.lender}</h4>
-                    <p><strong>Cicilan Bulanan:</strong> Rp ${result.monthlyPayment.toLocaleString('id-ID')}</p>
-                    <p><strong>Total Pembayaran:</strong> Rp ${result.totalPayment.toLocaleString('id-ID')}</p>
-                    <p><strong>Total Bunga:</strong> Rp ${result.totalInterest.toLocaleString('id-ID')}</p>
-                    <p><strong>Suku Bunga:</strong> ${result.interestRate.toFixed(2)}% per tahun</p>
+                <div class="loan-option ${isBest ? 'best-option' : ''}">
+                    ${isBest ? '<div class="best-badge">💎 Pilihan Terbaik</div>' : ''}
+                    <h5>${result.lender}</h5>
+                    <div class="loan-details">
+                        <div class="detail-row">
+                            <span class="label">💰 Cicilan Bulanan:</span>
+                            <span class="value">Rp ${Math.round(result.monthlyPayment).toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">💸 Total Pembayaran:</span>
+                            <span class="value">Rp ${Math.round(result.totalPayment).toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">📈 Total Bunga:</span>
+                            <span class="value">Rp ${Math.round(result.totalInterest).toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">📋 Biaya Admin:</span>
+                            <span class="value">Rp ${Math.round(result.processingFee).toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">📊 Suku Bunga:</span>
+                            <span class="value">${result.interestRate.toFixed(2)}% per tahun</span>
+                        </div>
+                    </div>
                 </div>
             `;
         });

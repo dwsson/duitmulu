@@ -1,4 +1,76 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Function to fetch daily article from backend
+    async function fetchArticles() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/article/daily`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json(); 
+            const article = data.data; 
+
+            if (!article) {
+                 articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
+                 return;
+            }
+
+            articlesFeed.innerHTML = ''; 
+            const articleCard = document.createElement('div');
+            articleCard.classList.add('article-card');
+
+            // --- ARTICLE CONTENT HANDLING FOR JUSTIFICATION AND EXPANSION ---
+            // First, replace newlines with <br> for basic HTML line breaks (as done before)
+            const formattedContentWithBr = article.content.replace(/\n/g, '<br>'); 
+            
+            // NEW LINE HERE: Convert Markdown to HTML using marked.js
+            const finalHtmlContent = marked.parse(formattedContentWithBr); 
+
+            // Use finalHtmlContent for snippet and fullContent
+            // We need to generate snippet from original text to avoid cutting HTML tags
+            // Let's take snippet from original content, then convert both to markdown
+            const originalSnippetText = article.content.substring(0, 200); 
+            const snippetHtml = marked.parse(originalSnippetText).replace(/\n/g, '<br>'); // Convert snippet part
+
+            articleCard.innerHTML = `
+                <h3>${article.title}</h3>
+                <p class="article-content-wrapper">
+                    <span class="article-snippet">${snippetHtml}</span><span class="article-ellipsis">...</span>
+                    <span class="article-full" style="display: none;">${finalHtmlContent}</span>
+                </p>
+                <a href="#" class="read-more-btn">Baca Selengkapnya</a>
+            `;
+            articlesFeed.appendChild(articleCard);
+
+            // ... (rest of the readMoreBtn event listener - this remains the same)
+            const readMoreBtn = articleCard.querySelector('.read-more-btn');
+            readMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault(); 
+                const contentWrapper = readMoreBtn.previousElementSibling; 
+                const snippetSpan = contentWrapper.querySelector('.article-snippet');
+                const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
+                const fullSpan = contentWrapper.querySelector('.article-full');
+
+                if (fullSpan.style.display === 'none') {
+                    snippetSpan.style.display = 'none';
+                    ellipsisSpan.style.display = 'none';
+                    fullSpan.style.display = 'inline'; 
+                    readMoreBtn.textContent = 'Sembunyikan'; 
+                } else {
+                    snippetSpan.style.display = 'inline';
+                    ellipsisSpan.style.display = 'inline';
+                    fullSpan.style.display = 'none';
+                    readMoreBtn.textContent = 'Baca Selengkapnya'; 
+                }
+            });
+
+
+        } catch (error) {
+            console.error('Error fetching articles:', error);
+            articlesFeed.innerHTML = '<p>Gagal memuat artikel dari backend. (Pastikan backend berjalan dan URL benar).</p>';
+        }
+    }
+
     const tabButtons = document.querySelectorAll('.tab-button');
     const calculateButton = document.getElementById('calculate-button');
     const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');

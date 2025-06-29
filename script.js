@@ -6,13 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDisplay = document.getElementById('results-display');
     const articlesFeed = document.getElementById('articles-feed'); 
 
-    // NEW: Add a button to load archived articles (you'll need to add this button to index.html if not already there,
-    // though this script can create it dynamically for now)
-    const loadArchiveBtn = document.createElement('button');
-    loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
-    loadArchiveBtn.classList.add('load-archive-btn');
-    // We add it after articlesFeed, you might want to adjust its exact position in HTML later
-    articlesFeed.insertAdjacentElement('afterend', loadArchiveBtn); 
+    // CHANGE: Get button by ID instead of creating dynamically
+    const loadArchiveBtn = document.getElementById('load-archive-btn'); 
 
     let activeLoanType = 'pinjol';
     let allLenderData = {}; 
@@ -29,16 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Convert Markdown to HTML using marked.js (ensure marked.min.js is linked in index.html)
         const finalHtmlContent = marked.parse(formattedContentWithBr); 
 
-        const originalSnippetText = article.content.substring(0, 0); // Snippet starts from 0
-        let displaySnippet = originalSnippetText;
+        // Snippet logic
+        const originalSnippetText = article.content.substring(0, 0); 
+        let displaySnippet = originalSnippetText; // Will be overwritten
         let showReadMore = false;
 
-        // Check if there's more content than the snippet
-        if (article.content.length > 200) { // If original content is longer than 200 chars
+        if (article.content.length > 200) { 
             displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
             showReadMore = true;
         } else {
-            // If content is 200 chars or less, show all and hide read more
             displaySnippet = finalHtmlContent;
             showReadMore = false;
         }
@@ -65,25 +59,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add event listener only if the button exists
         if (showReadMore) {
             const readMoreBtn = articleCard.querySelector('.read-more-btn');
-            readMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault(); 
-                const contentWrapper = readMoreBtn.previousElementSibling; 
-                const snippetSpan = contentWrapper.querySelector('.article-snippet');
-                const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
-                const fullSpan = contentWrapper.querySelector('.article-full');
+            if (readMoreBtn) { // Safety check
+                readMoreBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    const contentWrapper = readMoreBtn.previousElementSibling; 
+                    const snippetSpan = contentWrapper.querySelector('.article-snippet');
+                    const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
+                    const fullSpan = contentWrapper.querySelector('.article-full');
 
-                if (fullSpan.style.display === 'none') {
-                    snippetSpan.style.display = 'none';
-                    ellipsisSpan.style.display = 'none';
-                    fullSpan.style.display = 'block'; 
-                    readMoreBtn.textContent = 'Sembunyikan'; 
-                } else {
-                    snippetSpan.style.display = 'inline'; 
-                    ellipsisSpan.style.display = 'inline';
-                    fullSpan.style.display = 'none';
-                    readMoreBtn.textContent = 'Baca Selengkapnya'; 
-                }
-            });
+                    if (fullSpan.style.display === 'none') {
+                        snippetSpan.style.display = 'none';
+                        ellipsisSpan.style.display = 'none';
+                        fullSpan.style.display = 'block'; 
+                        readMoreBtn.textContent = 'Sembunyikan'; 
+                    } else {
+                        snippetSpan.style.display = 'inline'; 
+                        ellipsisSpan.style.display = 'inline';
+                        fullSpan.style.display = 'none';
+                        readMoreBtn.textContent = 'Baca Selengkapnya'; 
+                    }
+                });
+            }
         }
     }
 
@@ -91,20 +87,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch articles (now fetches multiple new ones)
     async function fetchArticles() {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/articles?count=3`); // Call new plural endpoint for 3 articles
+            const response = await fetch(`${BACKEND_URL}/api/articles?count=3`); 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json(); 
-            const articles = responseData.data; // Access the array of articles
+            const articles = responseData.data; 
 
             if (!articles || articles.length === 0) {
                  articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
                  return;
             }
 
-            articlesFeed.innerHTML = ''; // Clear previous articles BEFORE adding new ones
-            articles.forEach(article => { // Loop and render each
+            articlesFeed.innerHTML = ''; 
+            articles.forEach(article => { 
                 renderArticleCard(article, articlesFeed);
             });
 
@@ -114,11 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Function to fetch archived articles
+    // Function to fetch archived articles
     async function fetchArchivedArticles() {
         try {
-            loadArchiveBtn.disabled = true; // Disable button during fetch
-            loadArchiveBtn.textContent = 'Memuat Arsip...';
+            if (loadArchiveBtn) { // Safety check for button
+                loadArchiveBtn.disabled = true; 
+                loadArchiveBtn.textContent = 'Memuat Arsip...';
+            }
 
             const response = await fetch(`${BACKEND_URL}/api/articles/archive`);
             if (!response.ok) {
@@ -127,27 +125,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const responseData = await response.json();
             const archivedArticles = responseData.data;
 
-            const archiveContainer = document.createElement('div');
-            archiveContainer.id = 'archive-articles-feed';
-            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>';
-            archiveContainer.style.marginTop = '30px';
-            archiveContainer.style.borderTop = '1px solid var(--light-purple)';
-            archiveContainer.style.paddingTop = '20px';
+            let archiveContainer = document.getElementById('archive-articles-feed');
+            if (!archiveContainer) { // Create if it doesn't exist
+                archiveContainer = document.createElement('div');
+                archiveContainer.id = 'archive-articles-feed';
+                archiveContainer.style.marginTop = '30px';
+                archiveContainer.style.borderTop = '1px solid var(--light-purple)';
+                archiveContainer.style.paddingTop = '20px';
+                articlesFeed.parentNode.appendChild(archiveContainer); // Append after articlesFeed
+            }
+            
+            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>'; // Clear previous archive content
 
 
             if (!archivedArticles || archivedArticles.length === 0) {
                 archiveContainer.innerHTML += '<p>Tidak ada artikel dalam arsip.</p>';
             } else {
-                // Sort by date, newest first
                 archivedArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
                 archivedArticles.forEach(article => {
                     renderArticleCard(article, archiveContainer);
                 });
             }
             
-            // Append archive to main content area
-            articlesFeed.parentNode.appendChild(archiveContainer); // Appends after the current articles feed
-            loadArchiveBtn.style.display = 'none'; // Hide the load button after loading archive
+            if (loadArchiveBtn) { // Safety check
+                loadArchiveBtn.style.display = 'none'; 
+            }
 
         } catch (error) {
             console.error('Error fetching archived articles:', error);
@@ -156,8 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
             archiveContainer.innerHTML = '<h3>Arsip Artikel</h3><p style="color: red;">Gagal memuat arsip artikel.</p>';
             articlesFeed.parentNode.appendChild(archiveContainer);
         } finally {
-            loadArchiveBtn.disabled = false;
-            loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
+            if (loadArchiveBtn) { // Safety check
+                loadArchiveBtn.disabled = false;
+                loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
+            }
         }
     }
 

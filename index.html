@@ -18,15 +18,14 @@
             <p class="tagline">Jalan Ninja Paham Keuangan</p>
         </div>
     </header>
-
     <main class="container">
         <section class="articles-section">
             <h2>Financial Literacy Insights</h2>
             <div id="articles-feed" class="articles-grid">
-                </div>
-            <button id="load-archive-btn" class="load-archive-btn">Lihat Arsip Artikel</button> 
+                <!-- Articles will be loaded here -->
+            </div>
+            <!-- Removed the static button since JavaScript creates it dynamically -->
         </section>
-
         <aside class="calculator-aside">
             <h2>Kalkulator Pinjaman</h2>
             <div class="calculator-tabs">
@@ -34,7 +33,6 @@
                 <button class="tab-button" data-tab="kpr">KPR</button>
                 <button class="tab-button" data-tab="kmg">KMG</button>
             </div>
-
             <div class="calculator-inputs">
                 <div class="form-group">
                     <label for="jumlah-pinjaman">Jumlah Pinjaman (Rp)</label>
@@ -46,7 +44,6 @@
                 </div>
                 <button id="calculate-button">Hitung Pinjaman</button>
             </div>
-
             <div class="calculator-results">
                 <h3>Hasil Perbandingan</h3>
                 <div id="results-display">
@@ -55,14 +52,13 @@
             </div>
         </aside>
     </main>
-
     <footer>
         <div class="container">
             <p>&copy; 2025 Duit Mulu. All rights reserved.</p>
         </div>
     </footer>
+    <!-- Only load marked.js once -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

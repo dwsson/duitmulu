@@ -118,7 +118,42 @@ h3 {
     line-height: 1.8; /* Improve readability with more line spacing */
 }
 .article-full, .article-snippet {
-    text-align: justify; /* Ensure spans also justify */
+    display: inline-block; /* Allows text-align: justify to work better within these spans */
+    width: 100%; /* Ensures they take full available width for justification */
+}
+
+/* Styles for Archive Button */
+.load-archive-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: var(--primary-purple);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.load-archive-btn:hover {
+    background-color: var(--dark-purple);
+}
+
+/* Styles for Article Tags */
+.article-meta {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.article-tag {
+    background-color: var(--light-purple);
+    color: var(--dark-purple);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-weight: 600;
 }
 
 

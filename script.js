@@ -29,8 +29,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // Convert Markdown to HTML using marked.js (ensure marked.min.js is linked in index.html)
         const finalHtmlContent = marked.parse(formattedContentWithBr); 
 
-        const originalSnippetText = article.content.substring(0, 200); 
-        const snippetHtml = marked.parse(originalSnippetText).replace(/\n/g, '<br>'); 
+        const originalSnippetText = article.content.substring(0, 0); // Snippet starts from 0
+        let displaySnippet = originalSnippetText;
+        let showReadMore = false;
+
+        // Check if there's more content than the snippet
+        if (article.content.length > 200) { // If original content is longer than 200 chars
+            displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
+            showReadMore = true;
+        } else {
+            // If content is 200 chars or less, show all and hide read more
+            displaySnippet = finalHtmlContent;
+            showReadMore = false;
+        }
+
 
         // Add Date and Categories (Tags)
         const tagsHtml = article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ');
@@ -43,34 +55,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="article-categories">${tagsHtml}</span>
             </p>
             <p class="article-content-wrapper">
-                <span class="article-snippet">${snippetHtml}</span><span class="article-ellipsis">...</span>
-                <span class="article-full" style="display: none;">${finalHtmlContent}</span>
+                <span class="article-snippet">${displaySnippet}</span>
+                ${showReadMore ? `<span class="article-ellipsis" style="display:inline;">...</span><span class="article-full" style="display: none;">${finalHtmlContent}</span>` : ''}
             </p>
-            <a href="#" class="read-more-btn">Baca Selengkapnya</a>
+            ${showReadMore ? '<a href="#" class="read-more-btn">Baca Selengkapnya</a>' : ''}
         `;
         targetElement.appendChild(articleCard); 
 
-        // Add event listener for the new "Baca Selengkapnya" button
-        const readMoreBtn = articleCard.querySelector('.read-more-btn');
-        readMoreBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            const contentWrapper = readMoreBtn.previousElementSibling; 
-            const snippetSpan = contentWrapper.querySelector('.article-snippet');
-            const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
-            const fullSpan = contentWrapper.querySelector('.article-full');
+        // Add event listener only if the button exists
+        if (showReadMore) {
+            const readMoreBtn = articleCard.querySelector('.read-more-btn');
+            readMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault(); 
+                const contentWrapper = readMoreBtn.previousElementSibling; 
+                const snippetSpan = contentWrapper.querySelector('.article-snippet');
+                const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
+                const fullSpan = contentWrapper.querySelector('.article-full');
 
-            if (fullSpan.style.display === 'none') {
-                snippetSpan.style.display = 'none';
-                ellipsisSpan.style.display = 'none';
-                fullSpan.style.display = 'block'; // Ensure it takes full width
-                readMoreBtn.textContent = 'Sembunyikan'; 
-            } else {
-                snippetSpan.style.display = 'inline'; 
-                ellipsisSpan.style.display = 'inline';
-                fullSpan.style.display = 'none';
-                readMoreBtn.textContent = 'Baca Selengkapnya'; 
-            }
-        });
+                if (fullSpan.style.display === 'none') {
+                    snippetSpan.style.display = 'none';
+                    ellipsisSpan.style.display = 'none';
+                    fullSpan.style.display = 'block'; 
+                    readMoreBtn.textContent = 'Sembunyikan'; 
+                } else {
+                    snippetSpan.style.display = 'inline'; 
+                    ellipsisSpan.style.display = 'inline';
+                    fullSpan.style.display = 'none';
+                    readMoreBtn.textContent = 'Baca Selengkapnya'; 
+                }
+            });
+        }
     }
 
 

@@ -1,337 +1,212 @@
-/* General Styles */
-:root {
-    --primary-purple: #6A0DAD; /* A vibrant, warm purple */
-    --light-purple: #E6D0F2; /* Lighter shade for backgrounds/accents */
-    --dark-purple: #4A0570; /* Darker shade for text/contrast */
-    --text-color: #333;
-    --light-gray: #f4f4f4;
-    --white: #ffffff;
-    --border-radius: 8px;
-    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--light-gray);
-    color: var(--text-color);
-    line-height: 1.6;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-/* Header */
-header {
-    background-color: var(--primary-purple);
-    color: var(--white);
-    padding: 20px 0;
-    text-align: center;
-    box-shadow: var(--box-shadow);
-}
-
-header h1 {
-    margin: 0;
-    font-size: 2.8em;
-    font-weight: 700;
-}
-
-header .tagline {
-    font-size: 1.1em;
-    margin-top: 5px;
-    opacity: 0.9;
-}
-
-/* Main Layout */
-main {
-    display: flex;
-    flex-wrap: wrap; /* Allows wrapping on smaller screens */
-    gap: 30px;
-    padding: 30px 20px;
-}
-
-.articles-section {
-    flex: 2; /* Takes more space */
-    min-width: 300px; /* Minimum width before wrapping */
-    background-color: var(--white);
-    padding: 25px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-}
-
-.calculator-aside {
-    flex: 1; /* Takes less space */
-    min-width: 300px; /* Minimum width before wrapping */
-    background-color: var(--white);
-    padding: 25px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-}
-
-/* Headings */
-h2 {
-    color: var(--dark-purple);
-    font-size: 1.8em;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--light-purple);
-    padding-bottom: 10px;
-}
-
-h3 {
-    color: var(--primary-purple);
-    font-size: 1.4em;
-    margin-top: 0;
-}
-
-/* Articles Feed */
-.articles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.article-card {
-    background-color: var(--light-gray);
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease-in-out;
-}
-
-.article-card:hover {
-    transform: translateY(-5px);
-}
-
-.article-card h3 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    color: var(--dark-purple);
-}
-
-/* Article Paragraph Justification (CSS for "yang lurus") */
-.article-content-wrapper {
-    text-align: justify;
-    line-height: 1.8; /* Improve readability with more line spacing */
-}
-.article-full, .article-snippet {
-    display: inline-block; /* Allows text-align: justify to work better within these spans */
-    width: 100%; /* Ensures they take full available width for justification */
-}
-
-/* Styles for Archive Button */
-.load-archive-btn {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    background-color: var(--primary-purple);
-    color: var(--white);
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.load-archive-btn:hover {
-    background-color: var(--dark-purple);
-}
-
-/* Styles for Article Tags */
-.article-meta {
-    font-size: 0.8em;
-    color: #777;
-    margin-bottom: 10px;
-}
-
-.article-tag {
-    background-color: var(--light-purple);
-    color: var(--dark-purple);
-    padding: 3px 8px;
-    border-radius: 4px;
-    margin-right: 5px;
-    font-weight: 600;
-}
-
-
-/* Calculator Tabs */
-.calculator-tabs {
-    display: flex;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--light-purple);
-}
-
-.tab-button {
-    flex-grow: 1;
-    padding: 12px 15px;
-    border: none;
-    background-color: transparent;
-    color: var(--primary-purple);
-    font-size: 1em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-bottom: 3px solid transparent;
-    font-weight: 600;
-}
-
-.tab-button:hover {
-    color: var(--dark-purple);
-}
-
-.tab-button.active {
-    color: var(--dark-purple);
-    border-bottom: 3px solid var(--primary-purple);
-    background-color: var(--light-purple);
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-}
-
-/* Calculator Inputs (includes fixes for consistent sizing) */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--dark-purple);
-}
-
-.form-group input[type="number"], /* Target both number and text inputs */
-.form-group input[type="text"] { 
-    width: calc(100% - 20px);
-    padding: 10px;
-    border: 1px solid #ccc; /* Explicitly set border to override user agent defaults */
-    border-radius: 5px;
-    font-size: 1em;
-    /* --- FIXES FOR CONSISTENT SIZE --- */
-    -webkit-appearance: none; /* Remove default browser styling (for Chrome, Safari) */
-    -moz-appearance: none;    /* Remove default browser styling (for Firefox) */
-    appearance: none;         /* Standard property */
-    box-sizing: border-box;   /* Ensure padding and border are included in the width */
-    margin: 0;                /* Reset any default margins */
-}
-
-/* Optional: Hide the number input spin buttons specifically for WebKit browsers */
-.form-group input[type="number"]::-webkit-outer-spin-button,
-.form-group input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0; /* Otherwise defaults to 0 value for appearance */
-}
-
-#calculate-button {
-    display: block;
-    width: 100%;
-    padding: 12px 20px;
-    background-color: var(--primary-purple);
-    color: var(--white);
-    border: none;
-    border-radius: 5px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+/* Additional styles for calculator results */
+.loan-results {
     margin-top: 20px;
 }
 
-#calculate-button:hover {
-    background-color: var(--dark-purple);
-}
-
-/* Calculator Results */
-.calculator-results {
-    margin-top: 30px;
-    border-top: 1px solid var(--light-purple);
-    padding-top: 20px;
-}
-
-.calculator-results h3 {
-    margin-bottom: 15px;
-}
-
-.lender-card {
-    display: flex;
-    align-items: center;
-    background-color: var(--light-gray);
+.results-header {
+    margin-bottom: 20px;
     padding: 15px;
-    border-radius: var(--border-radius);
-    margin-bottom: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.lender-card .lender-logo {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: contain;
-    margin-right: 15px;
-    background-color: var(--white); /* For logos with transparent backgrounds */
-    padding: 5px;
-}
-
-.lender-info {
-    flex-grow: 1;
-}
-
-.lender-name {
-    font-weight: 600;
-    color: var(--dark-purple);
-    margin-bottom: 5px;
-}
-
-.lender-details p {
-    margin: 3px 0;
-    font-size: 0.9em;
-    color: #555;
-}
-
-.lender-details .highlight {
-    font-weight: 700;
-    color: var(--primary-purple);
-}
-
-.lender-contact a {
-    color: var(--primary-purple);
-    text-decoration: none;
-    margin-left: 10px;
-    font-size: 0.9em;
-}
-
-.lender-contact a:hover {
-    text-decoration: underline;
-}
-
-/* Footer */
-footer {
-    background-color: var(--dark-purple);
-    color: var(--white);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
     text-align: center;
-    padding: 15px 0;
-    margin-top: 30px;
+}
+
+.results-header h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+}
+
+.results-header p {
+    margin: 0;
+    opacity: 0.9;
     font-size: 0.9em;
 }
 
-/* Responsive Design */
+.loan-option {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    position: relative;
+}
+
+.loan-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.loan-option.best-option {
+    border: 2px solid #4CAF50;
+    background: linear-gradient(135deg, #f8fff8 0%, #f0fff0 100%);
+}
+
+.best-badge {
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    background: #4CAF50;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.loan-option h5 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.1em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.loan-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.detail-row .label {
+    font-weight: 500;
+    color: #666;
+    flex: 1;
+}
+
+.detail-row .value {
+    font-weight: bold;
+    color: #333;
+    text-align: right;
+}
+
+.loading-message, .error-message {
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.loading-message {
+    background: #e3f2fd;
+    border: 1px solid #2196f3;
+    color: #1976d2;
+}
+
+.error-message {
+    background: #ffebee;
+    border: 1px solid #f44336;
+    color: #c62828;
+}
+
+/* Article card improvements */
+.article-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.article-meta {
+    margin: 10px 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.article-date {
+    margin-right: 15px;
+}
+
+.article-tag {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+.article-content-wrapper {
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.article-snippet, .article-full {
+    display: block;
+}
+
+.article-ellipsis {
+    color: #999;
+    margin: 0 5px;
+}
+
+.read-more-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+}
+
+.read-more-btn:hover {
+    background: #5a6fd8;
+}
+
+.load-archive-btn {
+    background: #764ba2;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 20px 0;
+    transition: background 0.2s ease;
+}
+
+.load-archive-btn:hover {
+    background: #6a4190;
+}
+
+.load-archive-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Responsive improvements */
 @media (max-width: 768px) {
-    main {
+    .detail-row {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
     }
-
-    .articles-section,
-    .calculator-aside {
-        width: 100%;
+    
+    .detail-row .value {
+        text-align: left;
     }
-
-    header h1 {
-        font-size: 2em;
-    }
-
-    .tab-button {
-        font-size: 0.9em;
-        padding: 10px 10px;
+    
+    .best-badge {
+        position: static;
+        display: inline-block;
+        margin-bottom: 10px;
     }
 }

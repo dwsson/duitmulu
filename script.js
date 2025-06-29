@@ -17,9 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeLoanType = 'pinjol';
     let allLenderData = {}; 
 
-    // >>>>> IMPORTANT: REPLACE THIS WITH YOUR LIVE GLITCH BACKEND URL <<<<<
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
-    // Make sure this matches the URL you found for your Glitch project.
 
     // Helper function to render a single article card
     function renderArticleCard(article, targetElement) {
@@ -31,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Convert Markdown to HTML using marked.js (ensure marked.min.js is linked in index.html)
         const finalHtmlContent = marked.parse(formattedContentWithBr); 
 
-        // Get snippet from original content, then convert to HTML for display
         const originalSnippetText = article.content.substring(0, 200); 
         const snippetHtml = marked.parse(originalSnippetText).replace(/\n/g, '<br>'); 
 
@@ -51,29 +48,29 @@ document.addEventListener('DOMContentLoaded', () => {
             </p>
             <a href="#" class="read-more-btn">Baca Selengkapnya</a>
         `;
-        targetElement.appendChild(articleCard); // Append to the specified target
+        targetElement.appendChild(articleCard); 
 
         // Add event listener for the new "Baca Selengkapnya" button
         const readMoreBtn = articleCard.querySelector('.read-more-btn');
         readMoreBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent default link behavior (page jump)
-            const contentWrapper = readMoreBtn.previousElementSibling; // The <p> tag
+            e.preventDefault(); 
+            const contentWrapper = readMoreBtn.previousElementSibling; 
             const snippetSpan = contentWrapper.querySelector('.article-snippet');
             const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
             const fullSpan = contentWrapper.querySelector('.article-full');
 
             if (fullSpan.style.display === 'none') {
-                // Expand: show full content, hide snippet/ellipsis
+                // CHANGE HERE: Change 'inline' to 'block' for full content display
                 snippetSpan.style.display = 'none';
                 ellipsisSpan.style.display = 'none';
-                fullSpan.style.display = 'inline'; // Or 'block' depending on desired layout
-                readMoreBtn.textContent = 'Sembunyikan'; // Change button text
+                fullSpan.style.display = 'block'; // Ensure it takes full width
+                readMoreBtn.textContent = 'Sembunyikan'; 
             } else {
-                // Collapse: show snippet, hide full content
-                snippetSpan.style.display = 'inline';
+                // CHANGE HERE: Change 'inline' to 'block' if needed for snippet, but 'inline' is fine for collapsing
+                snippetSpan.style.display = 'inline'; // Keep as inline for snippet
                 ellipsisSpan.style.display = 'inline';
                 fullSpan.style.display = 'none';
-                readMoreBtn.textContent = 'Baca Selengkapnya'; // Change button text
+                readMoreBtn.textContent = 'Baca Selengkapnya'; 
             }
         });
     }

@@ -1,151 +1,103 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Function to fetch daily article from backend
-    async function fetchArticles() {
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/article/daily`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json(); 
-            const article = data.data; 
-
-            if (!article) {
-                 articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
-                 return;
-            }
-
-            articlesFeed.innerHTML = ''; 
-            const articleCard = document.createElement('div');
-            articleCard.classList.add('article-card');
-
-            // --- ARTICLE CONTENT HANDLING FOR JUSTIFICATION AND EXPANSION ---
-            // First, replace newlines with <br> for basic HTML line breaks (as done before)
-            const formattedContentWithBr = article.content.replace(/\n/g, '<br>'); 
-            
-            // NEW LINE HERE: Convert Markdown to HTML using marked.js
-            const finalHtmlContent = marked.parse(formattedContentWithBr); 
-
-            // Use finalHtmlContent for snippet and fullContent
-            // We need to generate snippet from original text to avoid cutting HTML tags
-            // Let's take snippet from original content, then convert both to markdown
-            const originalSnippetText = article.content.substring(0, 200); 
-            const snippetHtml = marked.parse(originalSnippetText).replace(/\n/g, '<br>'); // Convert snippet part
-
-            articleCard.innerHTML = `
-                <h3>${article.title}</h3>
-                <p class="article-content-wrapper">
-                    <span class="article-snippet">${snippetHtml}</span><span class="article-ellipsis">...</span>
-                    <span class="article-full" style="display: none;">${finalHtmlContent}</span>
-                </p>
-                <a href="#" class="read-more-btn">Baca Selengkapnya</a>
-            `;
-            articlesFeed.appendChild(articleCard);
-
-            // ... (rest of the readMoreBtn event listener - this remains the same)
-            const readMoreBtn = articleCard.querySelector('.read-more-btn');
-            readMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault(); 
-                const contentWrapper = readMoreBtn.previousElementSibling; 
-                const snippetSpan = contentWrapper.querySelector('.article-snippet');
-                const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
-                const fullSpan = contentWrapper.querySelector('.article-full');
-
-                if (fullSpan.style.display === 'none') {
-                    snippetSpan.style.display = 'none';
-                    ellipsisSpan.style.display = 'none';
-                    fullSpan.style.display = 'inline'; 
-                    readMoreBtn.textContent = 'Sembunyikan'; 
-                } else {
-                    snippetSpan.style.display = 'inline';
-                    ellipsisSpan.style.display = 'inline';
-                    fullSpan.style.display = 'none';
-                    readMoreBtn.textContent = 'Baca Selengkapnya'; 
-                }
-            });
-
-
-        } catch (error) {
-            console.error('Error fetching articles:', error);
-            articlesFeed.innerHTML = '<p>Gagal memuat artikel dari backend. (Pastikan backend berjalan dan URL benar).</p>';
-        }
-    }
-
     const tabButtons = document.querySelectorAll('.tab-button');
     const calculateButton = document.getElementById('calculate-button');
     const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');
     const tenorBulanInput = document.getElementById('tenor-bulan');
     const resultsDisplay = document.getElementById('results-display');
-    const articlesFeed = document.getElementById('articles-feed'); // Get articles feed element
+    const articlesFeed = document.getElementById('articles-feed'); 
 
-    let activeLoanType = 'pinjol'; // Default active tab
-    let allLenderData = {}; // To store fetched lender data
+    // NEW: Add a button to load archived articles (you'll need to add this button to index.html if not already there,
+    // though this script can create it dynamically for now)
+    const loadArchiveBtn = document.createElement('button');
+    loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
+    loadArchiveBtn.classList.add('load-archive-btn');
+    // We add it after articlesFeed, you might want to adjust its exact position in HTML later
+    articlesFeed.insertAdjacentElement('afterend', loadArchiveBtn); 
+
+    let activeLoanType = 'pinjol';
+    let allLenderData = {}; 
 
     // >>>>> IMPORTANT: REPLACE THIS WITH YOUR LIVE GLITCH BACKEND URL <<<<<
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
-    // Example: const BACKEND_URL = 'https://your-backend-project-name.glitch.me';
     // Make sure this matches the URL you found for your Glitch project.
 
-    // Function to fetch daily article from backend
+    // Helper function to render a single article card
+    function renderArticleCard(article, targetElement) {
+        const articleCard = document.createElement('div');
+        articleCard.classList.add('article-card');
+
+        // Replace newlines with <br> tags for proper paragraph breaks in HTML
+        const formattedContentWithBr = article.content.replace(/\n/g, '<br>'); 
+        // Convert Markdown to HTML using marked.js (ensure marked.min.js is linked in index.html)
+        const finalHtmlContent = marked.parse(formattedContentWithBr); 
+
+        // Get snippet from original content, then convert to HTML for display
+        const originalSnippetText = article.content.substring(0, 200); 
+        const snippetHtml = marked.parse(originalSnippetText).replace(/\n/g, '<br>'); 
+
+        // Add Date and Categories (Tags)
+        const tagsHtml = article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ');
+        const formattedDate = new Date(article.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        articleCard.innerHTML = `
+            <h3>${article.title}</h3>
+            <p class="article-meta">
+                <span class="article-date">${formattedDate}</span>
+                <span class="article-categories">${tagsHtml}</span>
+            </p>
+            <p class="article-content-wrapper">
+                <span class="article-snippet">${snippetHtml}</span><span class="article-ellipsis">...</span>
+                <span class="article-full" style="display: none;">${finalHtmlContent}</span>
+            </p>
+            <a href="#" class="read-more-btn">Baca Selengkapnya</a>
+        `;
+        targetElement.appendChild(articleCard); // Append to the specified target
+
+        // Add event listener for the new "Baca Selengkapnya" button
+        const readMoreBtn = articleCard.querySelector('.read-more-btn');
+        readMoreBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link behavior (page jump)
+            const contentWrapper = readMoreBtn.previousElementSibling; // The <p> tag
+            const snippetSpan = contentWrapper.querySelector('.article-snippet');
+            const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
+            const fullSpan = contentWrapper.querySelector('.article-full');
+
+            if (fullSpan.style.display === 'none') {
+                // Expand: show full content, hide snippet/ellipsis
+                snippetSpan.style.display = 'none';
+                ellipsisSpan.style.display = 'none';
+                fullSpan.style.display = 'inline'; // Or 'block' depending on desired layout
+                readMoreBtn.textContent = 'Sembunyikan'; // Change button text
+            } else {
+                // Collapse: show snippet, hide full content
+                snippetSpan.style.display = 'inline';
+                ellipsisSpan.style.display = 'inline';
+                fullSpan.style.display = 'none';
+                readMoreBtn.textContent = 'Baca Selengkapnya'; // Change button text
+            }
+        });
+    }
+
+
+    // Function to fetch articles (now fetches multiple new ones)
     async function fetchArticles() {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/article/daily`); // Endpoint for daily article
+            const response = await fetch(`${BACKEND_URL}/api/articles?count=3`); // Call new plural endpoint for 3 articles
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json(); 
-            const article = data.data; 
+            const responseData = await response.json(); 
+            const articles = responseData.data; // Access the array of articles
 
-            if (!article) {
+            if (!articles || articles.length === 0) {
                  articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
                  return;
             }
 
-            articlesFeed.innerHTML = ''; // Clear previous articles
-            const articleCard = document.createElement('div');
-            articleCard.classList.add('article-card');
-
-            // --- ARTICLE CONTENT HANDLING FOR JUSTIFICATION AND EXPANSION ---
-            // Replace newlines with <br> tags for proper paragraph breaks in HTML
-            const formattedContent = article.content.replace(/\n/g, '<br>'); 
-            const snippet = formattedContent.substring(0, 200); // Display first 200 characters
-            const fullContent = formattedContent;
-
-            articleCard.innerHTML = `
-                <h3>${article.title}</h3>
-                <p class="article-content-wrapper">
-                    <span class="article-snippet">${snippet}</span><span class="article-ellipsis">...</span>
-                    <span class="article-full" style="display: none;">${fullContent}</span>
-                </p>
-                <a href="#" class="read-more-btn">Baca Selengkapnya</a>
-            `;
-            articlesFeed.appendChild(articleCard);
-
-            // Add event listener for the new "Baca Selengkapnya" button
-            const readMoreBtn = articleCard.querySelector('.read-more-btn');
-            readMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault(); // Prevent default link behavior (page jump)
-                const contentWrapper = readMoreBtn.previousElementSibling; // The <p> tag
-                const snippetSpan = contentWrapper.querySelector('.article-snippet');
-                const ellipsisSpan = contentWrapper.querySelector('.article-ellipsis');
-                const fullSpan = contentWrapper.querySelector('.article-full');
-
-                if (fullSpan.style.display === 'none') {
-                    // Expand: show full content, hide snippet/ellipsis
-                    snippetSpan.style.display = 'none';
-                    ellipsisSpan.style.display = 'none';
-                    fullSpan.style.display = 'inline'; // Or 'block' depending on desired layout
-                    readMoreBtn.textContent = 'Sembunyikan'; // Change button text
-                } else {
-                    // Collapse: show snippet, hide full content
-                    snippetSpan.style.display = 'inline';
-                    ellipsisSpan.style.display = 'inline';
-                    fullSpan.style.display = 'none';
-                    readMoreBtn.textContent = 'Baca Selengkapnya'; // Change button text
-                }
+            articlesFeed.innerHTML = ''; // Clear previous articles BEFORE adding new ones
+            articles.forEach(article => { // Loop and render each
+                renderArticleCard(article, articlesFeed);
             });
-            // --- END ARTICLE CONTENT HANDLING ---
-
 
         } catch (error) {
             console.error('Error fetching articles:', error);
@@ -153,38 +105,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to fetch lender data for all types from backend
-    async function fetchAllLenderData() {
+    // NEW: Function to fetch archived articles
+    async function fetchArchivedArticles() {
         try {
-            const [pinjolRes, kprRes, kmgRes] = await Promise.all([
-                fetch(`${BACKEND_URL}/api/lenders/pinjol`),
-                fetch(`${BACKEND_URL}/api/lenders/kpr`),
-                fetch(`${BACKEND_URL}/api/lenders/kmg`)
-            ]);
+            loadArchiveBtn.disabled = true; // Disable button during fetch
+            loadArchiveBtn.textContent = 'Memuat Arsip...';
 
-            const pinjolData = await pinjolRes.json();
-            const kprData = await kprRes.json();
-            const kmgData = await kmgRes.json();
-
-            allLenderData = {
-                pinjol: pinjolData.data || [], 
-                kpr: kprData.data || [],
-                kmg: kmgData.data || []
-            };
-            console.log('Lender data fetched:', allLenderData);
-
-            if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
-                 // No cleanNumber needed here after rollback
-                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); 
-            } else {
-                 resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor untuk melihat perbandingan.</p>';
+            const response = await fetch(`${BACKEND_URL}/api/articles/archive`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            const responseData = await response.json();
+            const archivedArticles = responseData.data;
+
+            const archiveContainer = document.createElement('div');
+            archiveContainer.id = 'archive-articles-feed';
+            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>';
+            archiveContainer.style.marginTop = '30px';
+            archiveContainer.style.borderTop = '1px solid var(--light-purple)';
+            archiveContainer.style.paddingTop = '20px';
+
+
+            if (!archivedArticles || archivedArticles.length === 0) {
+                archiveContainer.innerHTML += '<p>Tidak ada artikel dalam arsip.</p>';
+            } else {
+                // Sort by date, newest first
+                archivedArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+                archivedArticles.forEach(article => {
+                    renderArticleCard(article, archiveContainer);
+                });
+            }
+            
+            // Append archive to main content area
+            articlesFeed.parentNode.appendChild(archiveContainer); // Appends after the current articles feed
+            loadArchiveBtn.style.display = 'none'; // Hide the load button after loading archive
 
         } catch (error) {
-            console.error('Error fetching all lender data:', error);
-            resultsDisplay.innerHTML = '<p style="color: red;">Gagal memuat data pemberi pinjaman dari backend. (Pastikan server backend berjalan dan URL benar).</p>';
+            console.error('Error fetching archived articles:', error);
+            const archiveContainer = document.getElementById('archive-articles-feed') || document.createElement('div');
+            archiveContainer.id = 'archive-articles-feed';
+            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3><p style="color: red;">Gagal memuat arsip artikel.</p>';
+            articlesFeed.parentNode.appendChild(archiveContainer);
+        } finally {
+            loadArchiveBtn.disabled = false;
+            loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
         }
     }
+
 
     // Function to calculate monthly installment (simplified)
     function calculateMonthlyPayment(principal, monthlyInterestRate, tenorMonths) {
@@ -238,12 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const calculations = lenders.map(lender => {
-            const monthlyRate = lender.interestRate; // This is the 0.03 (decimal) from backend
+            const monthlyRate = lender.interestRate; 
             const monthlyPayment = calculateMonthlyPayment(loanAmount, monthlyRate, tenorMonths);
             const totalPayment = monthlyPayment * tenorMonths;
             const totalInterest = totalPayment - loanAmount;
             
-            // Calculate actual admin fee amount for display using percentage from backend
             const adminFeeAmount = loanAmount * (lender.adminFeePercentage / 100); 
             const receivedAmount = loanAmount - adminFeeAmount;
 
@@ -322,8 +288,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') calculateButton.click();
     });
 
+    // Event listener for Load Archive Button
+    loadArchiveBtn.addEventListener('click', fetchArchivedArticles);
+
 
     // Initial data fetch when the page loads
-    fetchArticles(); 
+    fetchArticles(); // Fetch new articles
     fetchAllLenderData(); 
 });

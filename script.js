@@ -6,18 +6,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDisplay = document.getElementById('results-display');
     const articlesFeed = document.getElementById('articles-feed'); 
 
-    // NEW: Add a button to load archived articles (you'll need to add this button to index.html if not already there,
-    // though this script can create it dynamically for now)
+    // NEW: Add a button to load archived articles
     const loadArchiveBtn = document.createElement('button');
     loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
     loadArchiveBtn.classList.add('load-archive-btn');
-    // We add it after articlesFeed, you might want to adjust its exact position in HTML later
     articlesFeed.insertAdjacentElement('afterend', loadArchiveBtn); 
 
     let activeLoanType = 'pinjol';
     let allLenderData = {}; 
 
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
+
+    // ADD MISSING FUNCTION: fetchAllLenderData
+    async function fetchAllLenderData() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/lenders`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            allLenderData = data;
+            return data;
+        } catch (error) {
+            console.error('Error fetching lender data:', error);
+            return {};
+        }
+    }
 
     // Helper function to render a single article card
     function renderArticleCard(article, targetElement) {
@@ -26,8 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Replace newlines with <br> tags for proper paragraph breaks in HTML
         const formattedContentWithBr = article.content.replace(/\n/g, '<br>'); 
-        // Convert Markdown to HTML using marked.js (ensure marked.min.js is linked in index.html)
-        const finalHtmlContent = marked.parse(formattedContentWithBr); 
+        
+        // Check if marked.js is available, otherwise use plain text
+        let finalHtmlContent;
+        if (typeof marked !== 'undefined' && marked.parse) {
+            finalHtmlContent = marked.parse(formattedContentWithBr);
+        } else {
+            finalHtmlContent = formattedContentWithBr;
+            console.warn('marked.js not loaded, using plain HTML');
+        }
 
         const originalSnippetText = article.content.substring(0, 0); // Snippet starts from 0
         let displaySnippet = originalSnippetText;
@@ -35,14 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Check if there's more content than the snippet
         if (article.content.length > 200) { // If original content is longer than 200 chars
-            displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
+            if (typeof marked !== 'undefined' && marked.parse) {
+                displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
+            } else {
+                displaySnippet = article.content.substring(0, 200).replace(/\n/g, '<br>');
+            }
             showReadMore = true;
         } else {
             // If content is 200 chars or less, show all and hide read more
             displaySnippet = finalHtmlContent;
             showReadMore = false;
         }
-
 
         // Add Date and Categories (Tags)
         const tagsHtml = article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ');
@@ -88,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
 
     // Function to fetch articles (now fetches multiple new ones)
     async function fetchArticles() {
@@ -143,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>'; // Clear previous archive content
 
-
             if (!archivedArticles || archivedArticles.length === 0) {
                 archiveContainer.innerHTML += '<p>Tidak ada artikel dalam arsip.</p>';
             } else {
@@ -161,4 +183,44 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching archived articles:', error);
             const archiveContainer = document.getElementById('archive-articles-feed') || document.createElement('div');
-            archiveContainer.id = 'archive-articles
+            archiveContainer.id = 'archive-articles-feed';
+            archiveContainer.innerHTML = '<p>Gagal memuat arsip artikel.</p>';
+        }
+    }
+
+    // ADD MISSING FUNCTION: renderResults (if this is where fetchAllLenderData is called)
+    function renderResults() {
+        // This function should contain your loan calculation logic
+        // For now, I'll add a basic structure
+        const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value) || 0;
+        const tenorBulan = parseInt(tenorBulanInput.value) || 0;
+        
+        if (jumlahPinjaman <= 0 || tenorBulan <= 0) {
+            resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor yang valid.</p>';
+            return;
+        }
+
+        // Call fetchAllLenderData and then process results
+        fetchAllLenderData().then(lenderData => {
+            // Add your loan calculation logic here
+            // This is where you would use the lender data to calculate loan options
+            resultsDisplay.innerHTML = '<p>Hasil perhitungan akan ditampilkan di sini.</p>';
+        }).catch(error => {
+            console.error('Error in renderResults:', error);
+            resultsDisplay.innerHTML = '<p>Terjadi kesalahan saat memuat data pemberi pinjaman.</p>';
+        });
+    }
+
+    // Event listeners
+    if (calculateButton) {
+        calculateButton.addEventListener('click', renderResults);
+    }
+
+    if (loadArchiveBtn) {
+        loadArchiveBtn.addEventListener('click', fetchArchivedArticles);
+    }
+
+    // Initialize the application
+    fetchArticles(); // Load initial articles
+    fetchAllLenderData(); // Load lender data on page load
+});

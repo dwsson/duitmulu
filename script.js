@@ -6,10 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDisplay = document.getElementById('results-display');
     const articlesFeed = document.getElementById('articles-feed'); 
 
-    // NEW: Add a button to load archived articles
+    // Create archive button dynamically (since it's not in HTML)
     const loadArchiveBtn = document.createElement('button');
     loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
     loadArchiveBtn.classList.add('load-archive-btn');
+    loadArchiveBtn.id = 'load-archive-btn';
     articlesFeed.insertAdjacentElement('afterend', loadArchiveBtn); 
 
     let activeLoanType = 'pinjol';
@@ -17,7 +18,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
 
-    // ADD MISSING FUNCTION: fetchAllLenderData
+    // Tab functionality
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+            // Update active loan type
+            activeLoanType = button.dataset.tab;
+            // Clear previous results
+            resultsDisplay.innerHTML = '<p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>';
+            console.log('Active loan type:', activeLoanType);
+        });
+    });
+
+    // Function to fetch lender data
     async function fetchAllLenderData() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/lenders`);
@@ -50,12 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('marked.js not loaded, using plain HTML');
         }
 
-        const originalSnippetText = article.content.substring(0, 0); // Snippet starts from 0
-        let displaySnippet = originalSnippetText;
+        let displaySnippet = '';
         let showReadMore = false;
 
         // Check if there's more content than the snippet
-        if (article.content.length > 200) { // If original content is longer than 200 chars
+        if (article.content.length > 200) {
             if (typeof marked !== 'undefined' && marked.parse) {
                 displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
             } else {
@@ -63,13 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             showReadMore = true;
         } else {
-            // If content is 200 chars or less, show all and hide read more
             displaySnippet = finalHtmlContent;
             showReadMore = false;
         }
 
         // Add Date and Categories (Tags)
-        const tagsHtml = article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ');
+        const tagsHtml = article.tags ? article.tags.map(tag => `<span class="article-tag">${tag}</span>`).join(' ') : '';
         const formattedDate = new Date(article.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
 
         articleCard.innerHTML = `
@@ -89,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add event listener only if the button exists
         if (showReadMore) {
             const readMoreBtn = articleCard.querySelector('.read-more-btn');
-            if (readMoreBtn) { // Safety check
+            if (readMoreBtn) {
                 readMoreBtn.addEventListener('click', (e) => {
                     e.preventDefault(); 
                     const contentWrapper = readMoreBtn.previousElementSibling; 
@@ -113,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to fetch articles (now fetches multiple new ones)
+    // Function to fetch articles
     async function fetchArticles() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/articles?count=3`); 
@@ -121,15 +135,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json(); 
-            const articles = responseData.data; // Access the array of articles
+            const articles = responseData.data;
 
             if (!articles || articles.length === 0) {
                  articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
                  return;
             }
 
-            articlesFeed.innerHTML = ''; // Clear previous articles BEFORE adding new ones
-            articles.forEach(article => { // Loop and render each
+            articlesFeed.innerHTML = '';
+            articles.forEach(article => {
                 renderArticleCard(article, articlesFeed);
             });
 
@@ -139,10 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Function to fetch archived articles
+    // Function to fetch archived articles
     async function fetchArchivedArticles() {
         try {
-            if (loadArchiveBtn) { // Safety check for button
+            if (loadArchiveBtn) {
                 loadArchiveBtn.disabled = true; 
                 loadArchiveBtn.textContent = 'Memuat Arsip...';
             }
@@ -155,28 +169,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const archivedArticles = responseData.data;
 
             let archiveContainer = document.getElementById('archive-articles-feed');
-            if (!archiveContainer) { // Create if it doesn't exist
+            if (!archiveContainer) {
                 archiveContainer = document.createElement('div');
                 archiveContainer.id = 'archive-articles-feed';
                 archiveContainer.style.marginTop = '30px';
                 archiveContainer.style.borderTop = '1px solid var(--light-purple)';
                 archiveContainer.style.paddingTop = '20px';
-                articlesFeed.parentNode.appendChild(archiveContainer); // Append after articlesFeed
+                articlesFeed.parentNode.appendChild(archiveContainer);
             }
             
-            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>'; // Clear previous archive content
+            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>';
 
             if (!archivedArticles || archivedArticles.length === 0) {
                 archiveContainer.innerHTML += '<p>Tidak ada artikel dalam arsip.</p>';
             } else {
-                // Sort by date, newest first
                 archivedArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
                 archivedArticles.forEach(article => {
                     renderArticleCard(article, archiveContainer);
                 });
             }
             
-            if (loadArchiveBtn) { // Safety check
+            if (loadArchiveBtn) {
                 loadArchiveBtn.style.display = 'none'; 
             }
 
@@ -188,10 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ADD MISSING FUNCTION: renderResults (if this is where fetchAllLenderData is called)
+    // Function to render loan calculation results
     function renderResults() {
-        // This function should contain your loan calculation logic
-        // For now, I'll add a basic structure
         const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value) || 0;
         const tenorBulan = parseInt(tenorBulanInput.value) || 0;
         
@@ -200,15 +211,78 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Call fetchAllLenderData and then process results
+        resultsDisplay.innerHTML = '<p>Memuat data pemberi pinjaman...</p>';
+
         fetchAllLenderData().then(lenderData => {
-            // Add your loan calculation logic here
-            // This is where you would use the lender data to calculate loan options
-            resultsDisplay.innerHTML = '<p>Hasil perhitungan akan ditampilkan di sini.</p>';
+            // Basic loan calculation logic
+            const results = calculateLoanOptions(jumlahPinjaman, tenorBulan, activeLoanType, lenderData);
+            displayResults(results);
         }).catch(error => {
             console.error('Error in renderResults:', error);
             resultsDisplay.innerHTML = '<p>Terjadi kesalahan saat memuat data pemberi pinjaman.</p>';
         });
+    }
+
+    // Function to calculate loan options
+    function calculateLoanOptions(principal, tenure, loanType, lenderData) {
+        // This is a simplified calculation - you'll need to implement proper logic based on your backend data
+        const results = [];
+        
+        // Example calculation for different loan types
+        let baseRate = 0.12; // 12% annual rate as default
+        
+        switch(loanType) {
+            case 'pinjol':
+                baseRate = 0.15; // 15% for pinjol
+                break;
+            case 'kpr':
+                baseRate = 0.08; // 8% for KPR
+                break;
+            case 'kmg':
+                baseRate = 0.10; // 10% for KMG
+                break;
+        }
+
+        // Calculate monthly payment using simple formula
+        const monthlyRate = baseRate / 12;
+        const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, tenure)) / (Math.pow(1 + monthlyRate, tenure) - 1);
+        const totalPayment = monthlyPayment * tenure;
+        const totalInterest = totalPayment - principal;
+
+        results.push({
+            lender: `${loanType.toUpperCase()} Calculator`,
+            monthlyPayment: monthlyPayment,
+            totalPayment: totalPayment,
+            totalInterest: totalInterest,
+            interestRate: baseRate * 100
+        });
+
+        return results;
+    }
+
+    // Function to display calculation results
+    function displayResults(results) {
+        if (results.length === 0) {
+            resultsDisplay.innerHTML = '<p>Tidak ada data pemberi pinjaman yang tersedia.</p>';
+            return;
+        }
+
+        let resultHTML = '<div class="loan-results">';
+        
+        results.forEach(result => {
+            resultHTML += `
+                <div class="loan-option">
+                    <h4>${result.lender}</h4>
+                    <p><strong>Cicilan Bulanan:</strong> Rp ${result.monthlyPayment.toLocaleString('id-ID')}</p>
+                    <p><strong>Total Pembayaran:</strong> Rp ${result.totalPayment.toLocaleString('id-ID')}</p>
+                    <p><strong>Total Bunga:</strong> Rp ${result.totalInterest.toLocaleString('id-ID')}</p>
+                    <p><strong>Suku Bunga:</strong> ${result.interestRate.toFixed(2)}% per tahun</p>
+                </div>
+            `;
+        });
+        
+        resultHTML += '</div>';
+        resultsDisplay.innerHTML = resultHTML;
     }
 
     // Event listeners
@@ -221,6 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize the application
-    fetchArticles(); // Load initial articles
-    fetchAllLenderData(); // Load lender data on page load
+    fetchArticles();
+    fetchAllLenderData();
 });

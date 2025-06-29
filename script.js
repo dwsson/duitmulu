@@ -60,14 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const fullSpan = contentWrapper.querySelector('.article-full');
 
             if (fullSpan.style.display === 'none') {
-                // CHANGE HERE: Change 'inline' to 'block' for full content display
                 snippetSpan.style.display = 'none';
                 ellipsisSpan.style.display = 'none';
                 fullSpan.style.display = 'block'; // Ensure it takes full width
                 readMoreBtn.textContent = 'Sembunyikan'; 
             } else {
-                // CHANGE HERE: Change 'inline' to 'block' if needed for snippet, but 'inline' is fine for collapsing
-                snippetSpan.style.display = 'inline'; // Keep as inline for snippet
+                snippetSpan.style.display = 'inline'; 
                 ellipsisSpan.style.display = 'inline';
                 fullSpan.style.display = 'none';
                 readMoreBtn.textContent = 'Baca Selengkapnya'; 

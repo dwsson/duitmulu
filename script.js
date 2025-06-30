@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. Variable Declarations ---
     const tabButtons = document.querySelectorAll('.tab-button');
     const calculateButton = document.getElementById('calculate-button');
     const jumlahPinjamanInput = document.getElementById('jumlah-pinjaman');
@@ -7,20 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDisplay = document.getElementById('results-display');
     const articlesFeed = document.getElementById('articles-feed'); 
 
-    // Create archive button dynamically (since it's not in HTML)
+    // NEW: Add a button to load archived articles (you'll need to add this button to index.html if not already there,
+    // though this script can create it dynamically for now)
     const loadArchiveBtn = document.createElement('button');
     loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
     loadArchiveBtn.classList.add('load-archive-btn');
-    loadArchiveBtn.id = 'load-archive-btn'; 
+    loadArchiveBtn.id = 'load-archive-btn'; // Assign ID for easier access if it's placed in HTML
+    // We add it after articlesFeed, you might want to adjust its exact position in HTML later
     articlesFeed.insertAdjacentElement('afterend', loadArchiveBtn); 
 
     let activeLoanType = 'pinjol';
     let allLenderData = {}; 
 
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
-
-
-    // --- 2. Function Definitions (ALL FUNCTIONS GO HERE BEFORE ANY EVENT LISTENERS) ---
 
     // Helper function to render a single article card
     function renderArticleCard(article, targetElement) {
@@ -32,15 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Convert Markdown to HTML using marked.js (ensure marked.min.js is linked in index.html)
         const finalHtmlContent = marked.parse(formattedContentWithBr); 
 
-        // Snippet logic
-        const originalSnippetText = article.content.substring(0, 0); 
-        let displaySnippet = originalSnippetText; 
+        const originalSnippetText = article.content.substring(0, 0); // Snippet starts from 0
+        let displaySnippet = originalSnippetText;
         let showReadMore = false;
 
-        if (article.content.length > 200) { 
+        // Check if there's more content than the snippet
+        if (article.content.length > 200) { // If original content is longer than 200 chars
             displaySnippet = marked.parse(article.content.substring(0, 200)).replace(/\n/g, '<br>');
             showReadMore = true;
         } else {
+            // If content is 200 chars or less, show all and hide read more
             displaySnippet = finalHtmlContent;
             showReadMore = false;
         }
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add event listener only if the button exists
         if (showReadMore) {
             const readMoreBtn = articleCard.querySelector('.read-more-btn');
-            if (readMoreBtn) { 
+            if (readMoreBtn) { // Safety check
                 readMoreBtn.addEventListener('click', (e) => {
                     e.preventDefault(); 
                     const contentWrapper = readMoreBtn.previousElementSibling; 
@@ -100,15 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json(); 
-            const articles = responseData.data; 
+            const articles = responseData.data; // Access the array of articles
 
             if (!articles || articles.length === 0) {
                  articlesFeed.innerHTML = '<p>Gagal memuat artikel. Tidak ada data.</p>';
                  return;
             }
 
-            articlesFeed.innerHTML = ''; 
-            articles.forEach(article => { 
+            articlesFeed.innerHTML = ''; // Clear previous articles BEFORE adding new ones
+            articles.forEach(article => { // Loop and render each
                 renderArticleCard(article, articlesFeed);
             });
 
@@ -118,42 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to fetch all lender data
-    async function fetchAllLenderData() { // THIS IS THE FUNCTION THAT WAS 'NOT DEFINED'
-        try {
-            const [pinjolRes, kprRes, kmgRes] = await Promise.all([
-                fetch(`${BACKEND_URL}/api/lenders/pinjol`),
-                fetch(`${BACKEND_URL}/api/lenders/kpr`),
-                fetch(`${BACKEND_URL}/api/lenders/kmg`)
-            ]);
-
-            const pinjolData = await pinjolRes.json();
-            const kprData = await kprRes.json();
-            const kmgData = await kmgRes.json();
-
-            allLenderData = {
-                pinjol: pinjolData.data || [], 
-                kpr: kprData.data || [],
-                kmg: kmgData.data || []
-            };
-            console.log('Lender data fetched:', allLenderData);
-
-            if (jumlahPinjamanInput.value > 0 && tenorBulanInput.value > 0) {
-                 renderResults(parseFloat(jumlahPinjamanInput.value), parseInt(tenorBulanInput.value)); 
-            } else {
-                 resultsDisplay.innerHTML = '<p>Masukkan jumlah pinjaman dan tenor untuk melihat perbandingan.</p>';
-            }
-
-        } catch (error) {
-            console.error('Error fetching all lender data:', error);
-            resultsDisplay.innerHTML = '<p style="color: red;">Gagal memuat data pemberi pinjaman dari backend. (Pastikan backend berjalan dan URL benar).</p>';
-        }
-    }
-
-    // Function to fetch archived articles
+    // NEW: Function to fetch archived articles
     async function fetchArchivedArticles() {
         try {
-            if (loadArchiveBtn) { 
+            if (loadArchiveBtn) { // Safety check for button
                 loadArchiveBtn.disabled = true; 
                 loadArchiveBtn.textContent = 'Memuat Arsip...';
             }
@@ -166,27 +133,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const archivedArticles = responseData.data;
 
             let archiveContainer = document.getElementById('archive-articles-feed');
-            if (!archiveContainer) { 
+            if (!archiveContainer) { // Create if it doesn't exist
                 archiveContainer = document.createElement('div');
                 archiveContainer.id = 'archive-articles-feed';
                 archiveContainer.style.marginTop = '30px';
                 archiveContainer.style.borderTop = '1px solid var(--light-purple)';
                 archiveContainer.style.paddingTop = '20px';
-                articlesFeed.parentNode.appendChild(archiveContainer); 
+                articlesFeed.parentNode.appendChild(archiveContainer); // Appends after the current articles feed
             }
             
-            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>'; 
+            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3>'; // Clear previous archive content
+
 
             if (!archivedArticles || archivedArticles.length === 0) {
                 archiveContainer.innerHTML += '<p>Tidak ada artikel dalam arsip.</p>';
             } else {
+                // Sort by date, newest first
                 archivedArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
                 archivedArticles.forEach(article => {
                     renderArticleCard(article, archiveContainer);
                 });
             }
             
-            if (loadArchiveBtn) { 
+            if (loadArchiveBtn) { // Safety check
                 loadArchiveBtn.style.display = 'none'; 
             }
 
@@ -194,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching archived articles:', error);
             const archiveContainer = document.getElementById('archive-articles-feed') || document.createElement('div');
             archiveContainer.id = 'archive-articles-feed';
-            archiveContainer.innerHTML = '<p style="color: red;">Gagal memuat arsip artikel.</p>';
+            archiveContainer.innerHTML = '<h3>Arsip Artikel</h3><p style="color: red;">Gagal memuat arsip artikel.</p>';
             articlesFeed.parentNode.appendChild(archiveContainer);
         } finally {
-            if (loadArchiveBtn) { 
+            if (loadArchiveBtn) { // Safety check
                 loadArchiveBtn.disabled = false;
                 loadArchiveBtn.textContent = 'Lihat Arsip Artikel';
             }
@@ -236,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to render results
     function renderResults(loanAmount, tenorMonths) {
-        resultsDisplay.innerHTML = ''; 
+        resultsDisplay.innerHTML = ''; // Clear previous results
 
         if (isNaN(loanAmount) || loanAmount <= 0 || isNaN(tenorMonths) || tenorMonths <= 0) {
             resultsDisplay.innerHTML = '<p style="color: red;">Mohon masukkan jumlah pinjaman dan tenor yang valid.</p>';
@@ -312,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. Event Listeners (Placed after all functions are defined) ---
+    // Event listeners for tab switching
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -325,16 +294,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Event listener for calculation button
     calculateButton.addEventListener('click', () => {
         const jumlahPinjaman = parseFloat(jumlahPinjamanInput.value); 
         const tenorBulan = parseInt(tenorBulanInput.value);
         renderResults(jumlahPinjaman, tenorBulan);
     });
 
+    // Optional: Trigger calculation on Enter key in input fields (restored to original)
     jumlahPinjamanInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') calculateButton.click();
     });
-    tenorBulanInput.addEventListener('keypress', (e) => { 
+    tenorBulanInput.addEventListener('keypress', (e) => { // Adding this for consistency if it was desired.
         if (e.key === 'Enter') calculateButton.click();
     });
 
@@ -342,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadArchiveBtn.addEventListener('click', fetchArchivedArticles);
 
 
-    // --- 4. Initial Data Fetch Calls (Placed at the very end of DOMContentLoaded) ---
-    fetchArticles(); 
+    // Initial data fetch when the page loads
+    fetchArticles(); // Fetch new articles
     fetchAllLenderData(); 
 });

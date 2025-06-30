@@ -1,63 +1,474 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duit Mulu - Jalan Ninja Paham Keuangan</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>FinancialHub - Literasi Keuangan & Kalkulator Pinjaman</title>
+    <meta name="description" content="Platform terpercaya untuk literasi keuangan dan kalkulator pinjaman KPR, KMG, dan pinjaman personal. Dapatkan edukasi finansial terbaik dan bandingkan opsi pinjaman.">
+    <meta name="keywords" content="literasi keuangan, kalkulator pinjaman, KPR, KMG, finansial, investasi, kredit">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#10b981',
+                        dark: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <div class="container">
-            <h1>Duit Mulu</h1>
-            <p class="tagline">Jalan Ninja Paham Keuangan</p>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold">FinancialHub</h1>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="hover:text-blue-200 transition">Beranda</a>
+                    <a href="#" class="hover:text-blue-200 transition">Artikel</a>
+                    <a href="#" class="hover:text-blue-200 transition">Kalkulator</a>
+                    <a href="#" class="hover:text-blue-200 transition">Kontak</a>
+                </nav>
+            </div>
         </div>
     </header>
-    <main class="container">
-        <section class="articles-section">
-            <h2>Financial Literacy Insights</h2>
-            <div id="articles-feed" class="articles-grid">
-                <!-- Articles will be loaded here -->
-            </div>
-            <!-- Removed the static button since JavaScript creates it dynamically -->
-        </section>
-        <aside class="calculator-aside">
-            <h2>Kalkulator Pinjaman</h2>
-            <div class="calculator-tabs">
-                <button class="tab-button active" data-tab="pinjol">Pinjol</button>
-                <button class="tab-button" data-tab="kpr">KPR</button>
-                <button class="tab-button" data-tab="kmg">KMG</button>
-            </div>
-            <div class="calculator-inputs">
-                <div class="form-group">
-                    <label for="jumlah-pinjaman">Jumlah Pinjaman (Rp)</label>
-                    <input type="number" id="jumlah-pinjaman" placeholder="Masukkan jumlah pinjaman" min="1000000">
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-5xl font-bold mb-6">Tingkatkan Literasi Keuangan Anda</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Pelajari strategi finansial terbaik dan gunakan kalkulator pinjaman untuk merencanakan masa depan yang lebih cerah</p>
+            <button class="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition transform hover:scale-105">
+                Mulai Belajar
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-12">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Left Panel - Articles -->
+            <div class="lg:col-span-2">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-3xl font-bold text-gray-800">Artikel Terbaru</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Halaman</span>
+                        <div id="article-pagination" class="flex space-x-1"></div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="tenor-bulan">Tenor (Bulan)</label>
-                    <input type="number" id="tenor-bulan" placeholder="Masukkan tenor dalam bulan" min="1">
-                </div>
-                <button id="calculate-button">Hitung Pinjaman</button>
-            </div>
-            <div class="calculator-results">
-                <h3>Hasil Perbandingan</h3>
-                <div id="results-display">
-                    <p>Masukkan data di atas untuk melihat perbandingan pinjaman.</p>
+                
+                <div id="articles-container" class="space-y-6">
+                    <!-- Articles will be populated here -->
                 </div>
             </div>
-        </aside>
-    </main>
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Duit Mulu. All rights reserved.</p>
+
+            <!-- Right Panel - Calculator -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-xl p-6 sticky top-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Kalkulator Pinjaman</h3>
+                    
+                    <!-- Calculator Tabs -->
+                    <div class="flex mb-6">
+                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium rounded-l-lg border tab-active" data-tab="pinjaman">
+                            Pinjaman
+                        </button>
+                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium border-t border-b" data-tab="kpr">
+                            KPR
+                        </button>
+                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium rounded-r-lg border" data-tab="kmg">
+                            KMG
+                        </button>
+                    </div>
+
+                    <!-- Calculator Form -->
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pinjaman</label>
+                            <input type="number" id="loan-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan jumlah">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tenor (Bulan)</label>
+                            <select id="loan-tenor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="12">12 Bulan</option>
+                                <option value="24">24 Bulan</option>
+                                <option value="36">36 Bulan</option>
+                                <option value="48">48 Bulan</option>
+                                <option value="60">60 Bulan</option>
+                            </select>
+                        </div>
+                        <button id="calculate-btn" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
+                            Hitung Pinjaman
+                        </button>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="results-container" class="hidden">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Hasil Perhitungan</h4>
+                        <div id="results-list" class="space-y-3">
+                            <!-- Results will be populated here -->
+                        </div>
+                        <div id="results-pagination" class="flex justify-center mt-4 space-x-1">
+                            <!-- Pagination for results -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h5 class="text-xl font-bold mb-4">FinancialHub</h5>
+                    <p class="text-gray-400">Platform terpercaya untuk literasi keuangan dan perencanaan finansial</p>
+                </div>
+                <div>
+                    <h6 class="font-semibold mb-3">Layanan</h6>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Artikel Finansial</a></li>
+                        <li><a href="#" class="hover:text-white transition">Kalkulator Pinjaman</a></li>
+                        <li><a href="#" class="hover:text-white transition">Konsultasi</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h6 class="font-semibold mb-3">Bantuan</h6>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition">Kontak</a></li>
+                        <li><a href="#" class="hover:text-white transition">Support</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h6 class="font-semibold mb-3">Ikuti Kami</h6>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">Facebook</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">Twitter</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 FinancialHub. All rights reserved.</p>
+            </div>
         </div>
     </footer>
-    <!-- Only load marked.js once -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script src="script.js"></script>
+
+    <script>
+        // Sample data - In production, this would come from your Google Sheets API
+        const articles = [
+            {
+                id: 1,
+                title: "Cara Memulai Investasi untuk Pemula",
+                excerpt: "Panduan lengkap untuk memulai investasi dengan modal kecil dan strategi yang tepat untuk pemula.",
+                image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400",
+                date: "2025-06-28",
+                category: "Investasi"
+            },
+            {
+                id: 2,
+                title: "Mengelola Keuangan Pribadi dengan Efektif",
+                excerpt: "Tips dan trik mengelola keuangan pribadi agar lebih teratur dan mencapai tujuan finansial.",
+                image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400",
+                date: "2025-06-27",
+                category: "Perencanaan"
+            },
+            {
+                id: 3,
+                title: "Memahami Instrumen Investasi Saham",
+                excerpt: "Pelajari dasar-dasar investasi saham, risiko, dan strategi untuk memaksimalkan keuntungan.",
+                image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400",
+                date: "2025-06-26",
+                category: "Saham"
+            },
+            {
+                id: 4,
+                title: "Dana Darurat: Pentingnya Persiapan Finansial",
+                excerpt: "Mengapa dana darurat penting dan bagaimana cara membangun dana darurat yang ideal.",
+                image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400",
+                date: "2025-06-25",
+                category: "Dana Darurat"
+            },
+            {
+                id: 5,
+                title: "Strategi Menabung untuk Generasi Milenial",
+                excerpt: "Tips menabung yang efektif untuk generasi milenial dengan gaya hidup modern.",
+                image: "https://images.unsplash.com/photo-1559526324-593bc073d938?w=400",
+                date: "2025-06-24",
+                category: "Menabung"
+            },
+            {
+                id: 6,
+                title: "Investasi Reksa Dana vs Deposito",
+                excerpt: "Perbandingan lengkap antara investasi reksa dana dan deposito untuk pemula.",
+                image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400",
+                date: "2025-06-23",
+                category: "Investasi"
+            },
+            {
+                id: 7,
+                title: "Asuransi Jiwa: Perlindungan Finansial Keluarga",
+                excerpt: "Panduan memilih asuransi jiwa yang tepat untuk melindungi keluarga dari risiko finansial.",
+                image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400",
+                date: "2025-06-22",
+                category: "Asuransi"
+            },
+            {
+                id: 8,
+                title: "Kredit dan Hutang: Mengelola dengan Bijak",
+                excerpt: "Cara mengelola kredit dan hutang agar tidak membebani keuangan pribadi.",
+                image: "https://images.unsplash.com/photo-1554224154-26032fced8bd?w=400",
+                date: "2025-06-21",
+                category: "Kredit"
+            }
+        ];
+
+        // Sample loan providers data
+        const loanProviders = {
+            pinjaman: [
+                { name: "Bank Mandiri", interestRate: 12, adminFee: 1.5, email: "info@bankmandiri.co.id", whatsapp: "08001111111" },
+                { name: "BCA", interestRate: 10.5, adminFee: 2, email: "info@bca.co.id", whatsapp: "08002222222" },
+                { name: "BRI", interestRate: 11, adminFee: 1, email: "info@bri.co.id", whatsapp: "08003333333" },
+                { name: "BNI", interestRate: 11.5, adminFee: 1.2, email: "info@bni.co.id", whatsapp: "08004444444" }
+            ],
+            kpr: [
+                { name: "Bank Mandiri KPR", interestRate: 8.5, adminFee: 1, email: "kpr@bankmandiri.co.id", whatsapp: "08001111112" },
+                { name: "BCA KPR", interestRate: 8, adminFee: 1.5, email: "kpr@bca.co.id", whatsapp: "08002222223" },
+                { name: "BRI KPR", interestRate: 8.2, adminFee: 0.8, email: "kpr@bri.co.id", whatsapp: "08003333334" },
+                { name: "CIMB Niaga KPR", interestRate: 8.8, adminFee: 1.2, email: "kpr@cimbniaga.co.id", whatsapp: "08005555555" }
+            ],
+            kmg: [
+                { name: "Mandiri KMG", interestRate: 9, adminFee: 1.5, email: "kmg@bankmandiri.co.id", whatsapp: "08001111113" },
+                { name: "BCA KMG", interestRate: 8.5, adminFee: 2, email: "kmg@bca.co.id", whatsapp: "08002222224" },
+                { name: "BRI KMG", interestRate: 8.8, adminFee: 1, email: "kmg@bri.co.id", whatsapp: "08003333335" },
+                { name: "BTN KMG", interestRate: 9.2, adminFee: 1.3, email: "kmg@btn.co.id", whatsapp: "08006666666" }
+            ]
+        };
+
+        let currentArticlePage = 1;
+        let currentResultPage = 1;
+        let currentTab = 'pinjaman';
+        let calculationResults = [];
+        const articlesPerPage = 6;
+        const resultsPerPage = 3;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            renderArticles();
+            setupCalculatorTabs();
+            setupCalculator();
+        });
+
+        function renderArticles() {
+            const container = document.getElementById('articles-container');
+            const startIndex = (currentArticlePage - 1) * articlesPerPage;
+            const endIndex = startIndex + articlesPerPage;
+            const articlesToShow = articles.slice(startIndex, endIndex);
+
+            container.innerHTML = articlesToShow.map(article => `
+                <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover animate-fade-in">
+                    <div class="md:flex">
+                        <div class="md:w-1/3">
+                            <img src="${article.image}" alt="${article.title}" class="w-full h-48 md:h-full object-cover">
+                        </div>
+                        <div class="md:w-2/3 p-6">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${article.category}</span>
+                                <span class="text-gray-500 text-sm ml-3">${formatDate(article.date)}</span>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-800 mb-3">${article.title}</h4>
+                            <p class="text-gray-600 mb-4">${article.excerpt}</p>
+                            <button onclick="readArticle(${article.id})" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
+                                Baca Selengkapnya
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+
+            renderArticlePagination();
+        }
+
+        function renderArticlePagination() {
+            const totalPages = Math.ceil(articles.length / articlesPerPage);
+            const pagination = document.getElementById('article-pagination');
+            
+            pagination.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `px-3 py-1 text-sm rounded ${i === currentArticlePage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                button.onclick = () => {
+                    currentArticlePage = i;
+                    renderArticles();
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        function setupCalculatorTabs() {
+            const tabs = document.querySelectorAll('.calculator-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('tab-active'));
+                    this.classList.add('tab-active');
+                    currentTab = this.dataset.tab;
+                    document.getElementById('results-container').classList.add('hidden');
+                });
+            });
+        }
+
+        function setupCalculator() {
+            document.getElementById('calculate-btn').addEventListener('click', calculateLoan);
+        }
+
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loan-amount').value);
+            const tenor = parseInt(document.getElementById('loan-tenor').value);
+
+            if (!amount || amount <= 0) {
+                alert('Masukkan jumlah pinjaman yang valid');
+                return;
+            }
+
+            const providers = loanProviders[currentTab];
+            calculationResults = providers.map(provider => {
+                const adminFeeAmount = (amount * provider.adminFee) / 100;
+                const receivedAmount = amount - adminFeeAmount;
+                const monthlyRate = provider.interestRate / 100 / 12;
+                const monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, tenor)) / (Math.pow(1 + monthlyRate, tenor) - 1);
+
+                return {
+                    ...provider,
+                    requestedAmount: amount,
+                    receivedAmount: receivedAmount,
+                    monthlyPayment: monthlyPayment,
+                    adminFeeAmount: adminFeeAmount,
+                    tenor: tenor
+                };
+            });
+
+            // Sort by received amount (ascending)
+            calculationResults.sort((a, b) => a.receivedAmount - b.receivedAmount);
+
+            currentResultPage = 1;
+            renderResults();
+            document.getElementById('results-container').classList.remove('hidden');
+        }
+
+        function renderResults() {
+            const container = document.getElementById('results-list');
+            const startIndex = (currentResultPage - 1) * resultsPerPage;
+            const endIndex = startIndex + resultsPerPage;
+            const resultsToShow = calculationResults.slice(startIndex, endIndex);
+
+            container.innerHTML = resultsToShow.map((result, index) => `
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
+                        <h5 class="font-semibold text-gray-800">${result.name}</h5>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                            Rank ${startIndex + index + 1}
+                        </span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Pinjaman Diterima:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.receivedAmount)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Cicilan/Bulan:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.monthlyPayment)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Biaya Admin:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.adminFeeAmount)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Suku Bunga:</span>
+                            <span class="font-medium">${result.interestRate}%</span>
+                        </div>
+                    </div>
+                    <div class="flex mt-3 space-x-2">
+                        <a href="mailto:${result.email}" class="flex-1 bg-blue-500 text-white text-center py-2 px-3 rounded text-xs hover:bg-blue-600 transition">
+                            Email
+                        </a>
+                        <a href="https://wa.me/${result.whatsapp}" class="flex-1 bg-green-500 text-white text-center py-2 px-3 rounded text-xs hover:bg-green-600 transition">
+                            WhatsApp
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            renderResultsPagination();
+        }
+
+        function renderResultsPagination() {
+            const totalPages = Math.ceil(calculationResults.length / resultsPerPage);
+            const pagination = document.getElementById('results-pagination');
+            
+            pagination.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `px-2 py-1 text-xs rounded ${i === currentResultPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                button.onclick = () => {
+                    currentResultPage = i;
+                    renderResults();
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        function readArticle(articleId) {
+            const article = articles.find(a => a.id === articleId);
+            if (article) {
+                // In a real app, this would navigate to a dedicated article page
+                alert(`Membuka artikel: "${article.title}"\n\nDalam implementasi sebenarnya, ini akan membuka halaman artikel terpisah dengan konten lengkap.`);
+            }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('id-ID').format(Math.round(num));
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+    </script>
 </body>
 </html>

@@ -20,6 +20,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const BACKEND_URL = 'https://sandy-adaptable-pomelo.glitch.me'; 
 
+    // Add this function to your script.js file, preferably near the top after the variable declarations
+
+async function fetchAllLenderData() {
+    try {
+        console.log('Fetching all lender data...');
+        
+        const endpoints = [
+            { type: 'pinjol', url: `${BACKEND_URL}/api/lenders/pinjol` },
+            { type: 'kpr', url: `${BACKEND_URL}/api/lenders/kpr` },
+            { type: 'kmg', url: `${BACKEND_URL}/api/lenders/kmg` }
+        ];
+
+        // Fetch data from all endpoints
+        const fetchPromises = endpoints.map(async (endpoint) => {
+            try {
+                console.log(`Fetching ${endpoint.type} data from: ${endpoint.url}`);
+                const response = await fetch(endpoint.url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return { type: endpoint.type, data: data };
+            } catch (error) {
+                console.error(`Error fetching ${endpoint.type} data:`, error);
+                return { type: endpoint.type, data: [] }; // Return empty array on error
+            }
+        });
+
+        // Wait for all requests to complete
+        const results = await Promise.allSettled(fetchPromises);
+        
+        // Process results and populate allLenderData
+        results.forEach((result) => {
+            if (result.status === 'fulfilled' && result.value) {
+                const { type, data } = result.value;
+                allLenderData[type] = data;
+                console.log(`Successfully loaded ${data.length} ${type} lenders`);
+            }
+        });
+
+        console.log('All lender data loaded:', allLenderData);
+        
+    } catch (error) {
+        console.error('Error fetching all lender data:', error);
+        // Initialize with empty arrays to prevent further errors
+        allLenderData = {
+            pinjol: [],
+            kpr: [],
+            kmg: []
+        };
+    }
+}
     // Helper function to render a single article card
     function renderArticleCard(article, targetElement) {
         const articleCard = document.createElement('div');

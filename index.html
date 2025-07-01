@@ -48,10 +48,153 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Styles for script.js results */
+        .results-header h3 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* text-gray-800 */
+            margin-bottom: 1.5rem; /* mb-6 */
+            text-align: center;
+        }
+
+        .result-card {
+            background-color: #ffffff; /* bg-white */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            padding: 1.5rem; /* p-6 */
+            margin-bottom: 1rem; /* mb-4 */
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .result-card.recommended {
+            border-color: #10b981; /* accent color */
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.2), 0 10px 10px -5px rgba(16, 185, 129, 0.08);
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #10b981; /* accent color */
+            color: white;
+            padding: 0.25rem 1rem;
+            border-bottom-left-radius: 1rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+        }
+
+        .lender-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px dashed #e5e7eb;
+            padding-bottom: 1.5rem;
+        }
+
+        .lender-logo {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 0.5rem;
+            background-color: #eff6ff; /* bg-blue-50 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #3b82f6; /* text-secondary */
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .lender-details h4 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* text-dark */
+            margin-bottom: 0.25rem;
+        }
+
+        .lender-contacts {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .lender-contacts a {
+            color: #3b82f6;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .lender-contacts a:hover {
+            color: #1e40af;
+        }
+
+        .calculation-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dotted #e5e7eb;
+        }
+
+        .calculation-details .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .calculation-details .label {
+            color: #4b5563; /* text-gray-700 */
+            font-size: 0.9375rem; /* Slightly larger than text-sm */
+        }
+
+        .calculation-details .value {
+            font-weight: 600; /* font-semibold */
+            color: #1f2937; /* text-dark */
+            font-size: 0.9375rem;
+        }
+
+        .calculation-details .highlight .value {
+            color: #dc2626; /* text-red-600 for monthly payment */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700;
+        }
+
+        .calculation-details .total .value {
+            color: #1e40af; /* primary-color */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 800;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-size: 1.125rem;
+            background-color: #f3f4f6;
+            border-radius: 0.75rem;
+        }
+
+        /* Loading and Error Indicators */
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        #error {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: #dc2626;
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
     <header class="gradient-bg text-white shadow-lg">
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
@@ -66,7 +209,6 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="gradient-bg text-white py-16">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-5xl font-bold mb-6">Tingkatkan Literasi Keuangan Anda</h2>
@@ -77,10 +219,8 @@
         </div>
     </section>
 
-    <!-- Main Content -->
     <div class="container mx-auto px-6 py-12">
         <div class="grid lg:grid-cols-3 gap-8">
-            <!-- Left Panel - Articles -->
             <div class="lg:col-span-2">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="text-3xl font-bold text-gray-800">Artikel Terbaru</h3>
@@ -91,19 +231,16 @@
                 </div>
                 
                 <div id="articles-container" class="space-y-6">
-                    <!-- Articles will be populated here -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Right Panel - Calculator -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-xl p-6 sticky top-6">
                     <h3 class="text-2xl font-bold text-gray-800 mb-6">Kalkulator Pinjaman</h3>
                     
-                    <!-- Calculator Tabs -->
                     <div class="flex mb-6">
-                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium rounded-l-lg border tab-active" data-tab="pinjaman">
-                            Pinjaman
+                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium rounded-l-lg border tab-active" data-tab="pinjol">
+                            Personal Loan
                         </button>
                         <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium border-t border-b" data-tab="kpr">
                             KPR
@@ -113,15 +250,14 @@
                         </button>
                     </div>
 
-                    <!-- Calculator Form -->
                     <div class="space-y-4 mb-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pinjaman</label>
-                            <input type="number" id="loan-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan jumlah">
+                            <label for="loanAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pinjaman</label>
+                            <input type="number" id="loanAmount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan jumlah">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tenor (Bulan)</label>
-                            <select id="loan-tenor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label for="loanTerm" class="block text-sm font-medium text-gray-700 mb-2">Tenor (Bulan)</label>
+                            <select id="loanTerm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="12">12 Bulan</option>
                                 <option value="24">24 Bulan</option>
                                 <option value="36">36 Bulan</option>
@@ -129,27 +265,23 @@
                                 <option value="60">60 Bulan</option>
                             </select>
                         </div>
-                        <button id="calculate-btn" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
+                        <input type="hidden" id="loanType" value="pinjol">
+                        
+                        <button id="calculateButton" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
                             Hitung Pinjaman
                         </button>
                     </div>
 
-                    <!-- Results -->
-                    <div id="results-container" class="hidden">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Hasil Perhitungan</h4>
-                        <div id="results-list" class="space-y-3">
-                            <!-- Results will be populated here -->
+                    <div id="loading" class="text-center text-blue-600 font-semibold hidden">Calculating...</div>
+                    <div id="error" class="text-red-600 bg-red-100 border border-red-400 p-3 rounded-lg text-center hidden"></div>
+
+                    <div id="results" class="results-container">
                         </div>
-                        <div id="results-pagination" class="flex justify-center mt-4 space-x-1">
-                            <!-- Pagination for results -->
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-4 gap-8">
@@ -188,6 +320,7 @@
         </div>
     </footer>
 
+    <script src="script.js"></script>
     <script>
         // Sample data - In production, this would come from your Google Sheets API
         const articles = [
@@ -257,40 +390,15 @@
             }
         ];
 
-        // Sample loan providers data
-        const loanProviders = {
-            pinjaman: [
-                { name: "Bank Mandiri", interestRate: 12, adminFee: 1.5, email: "info@bankmandiri.co.id", whatsapp: "08001111111" },
-                { name: "BCA", interestRate: 10.5, adminFee: 2, email: "info@bca.co.id", whatsapp: "08002222222" },
-                { name: "BRI", interestRate: 11, adminFee: 1, email: "info@bri.co.id", whatsapp: "08003333333" },
-                { name: "BNI", interestRate: 11.5, adminFee: 1.2, email: "info@bni.co.id", whatsapp: "08004444444" }
-            ],
-            kpr: [
-                { name: "Bank Mandiri KPR", interestRate: 8.5, adminFee: 1, email: "kpr@bankmandiri.co.id", whatsapp: "08001111112" },
-                { name: "BCA KPR", interestRate: 8, adminFee: 1.5, email: "kpr@bca.co.id", whatsapp: "08002222223" },
-                { name: "BRI KPR", interestRate: 8.2, adminFee: 0.8, email: "kpr@bri.co.id", whatsapp: "08003333334" },
-                { name: "CIMB Niaga KPR", interestRate: 8.8, adminFee: 1.2, email: "kpr@cimbniaga.co.id", whatsapp: "08005555555" }
-            ],
-            kmg: [
-                { name: "Mandiri KMG", interestRate: 9, adminFee: 1.5, email: "kmg@bankmandiri.co.id", whatsapp: "08001111113" },
-                { name: "BCA KMG", interestRate: 8.5, adminFee: 2, email: "kmg@bca.co.id", whatsapp: "08002222224" },
-                { name: "BRI KMG", interestRate: 8.8, adminFee: 1, email: "kmg@bri.co.id", whatsapp: "08003333335" },
-                { name: "BTN KMG", interestRate: 9.2, adminFee: 1.3, email: "kmg@btn.co.id", whatsapp: "08006666666" }
-            ]
-        };
-
         let currentArticlePage = 1;
-        let currentResultPage = 1;
-        let currentTab = 'pinjaman';
-        let calculationResults = [];
         const articlesPerPage = 6;
-        const resultsPerPage = 3;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             renderArticles();
             setupCalculatorTabs();
-            setupCalculator();
+            // The calculator setup is now handled by script.js's initializeApp
+            // No need to call setupCalculator() or calculateLoan() directly here.
         });
 
         function renderArticles() {
@@ -342,116 +450,43 @@
 
         function setupCalculatorTabs() {
             const tabs = document.querySelectorAll('.calculator-tab');
+            const loanTypeInput = document.getElementById('loanType'); // Get the hidden input
+
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     tabs.forEach(t => t.classList.remove('tab-active'));
                     this.classList.add('tab-active');
-                    currentTab = this.dataset.tab;
-                    document.getElementById('results-container').classList.add('hidden');
+                    // Update the hidden input value
+                    loanTypeInput.value = this.dataset.tab;
+                    // Trigger validation to enable/disable button based on new type
+                    if (typeof validateInputs === 'function') { // Check if script.js function is available
+                        validateInputs();
+                    }
+                    // Clear previous results when tab changes
+                    document.getElementById('results').innerHTML = '';
                 });
             });
         }
+        
+        // This function is no longer needed as script.js handles it.
+        // function setupCalculator() {
+        //     document.getElementById('calculate-btn').addEventListener('click', calculateLoan);
+        // }
 
-        function setupCalculator() {
-            document.getElementById('calculate-btn').addEventListener('click', calculateLoan);
-        }
+        // This function is no longer needed as script.js handles the calculation and rendering.
+        // function calculateLoan() {
+        //    // Logic moved to script.js
+        // }
 
-        function calculateLoan() {
-            const amount = parseFloat(document.getElementById('loan-amount').value);
-            const tenor = parseInt(document.getElementById('loan-tenor').value);
+        // The renderResults for calculator is now handled by script.js.
+        // Only keep the article-related functions and utility functions.
+        // function renderResults() {
+        //     // Logic moved to script.js
+        // }
 
-            if (!amount || amount <= 0) {
-                alert('Masukkan jumlah pinjaman yang valid');
-                return;
-            }
-
-            const providers = loanProviders[currentTab];
-            calculationResults = providers.map(provider => {
-                const adminFeeAmount = (amount * provider.adminFee) / 100;
-                const receivedAmount = amount - adminFeeAmount;
-                const monthlyRate = provider.interestRate / 100 / 12;
-                const monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, tenor)) / (Math.pow(1 + monthlyRate, tenor) - 1);
-
-                return {
-                    ...provider,
-                    requestedAmount: amount,
-                    receivedAmount: receivedAmount,
-                    monthlyPayment: monthlyPayment,
-                    adminFeeAmount: adminFeeAmount,
-                    tenor: tenor
-                };
-            });
-
-            // Sort by received amount (ascending)
-            calculationResults.sort((a, b) => a.receivedAmount - b.receivedAmount);
-
-            currentResultPage = 1;
-            renderResults();
-            document.getElementById('results-container').classList.remove('hidden');
-        }
-
-        function renderResults() {
-            const container = document.getElementById('results-list');
-            const startIndex = (currentResultPage - 1) * resultsPerPage;
-            const endIndex = startIndex + resultsPerPage;
-            const resultsToShow = calculationResults.slice(startIndex, endIndex);
-
-            container.innerHTML = resultsToShow.map((result, index) => `
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex justify-between items-start mb-3">
-                        <h5 class="font-semibold text-gray-800">${result.name}</h5>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                            Rank ${startIndex + index + 1}
-                        </span>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Pinjaman Diterima:</span>
-                            <span class="font-medium">Rp ${formatNumber(result.receivedAmount)}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Cicilan/Bulan:</span>
-                            <span class="font-medium">Rp ${formatNumber(result.monthlyPayment)}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Biaya Admin:</span>
-                            <span class="font-medium">Rp ${formatNumber(result.adminFeeAmount)}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Suku Bunga:</span>
-                            <span class="font-medium">${result.interestRate}%</span>
-                        </div>
-                    </div>
-                    <div class="flex mt-3 space-x-2">
-                        <a href="mailto:${result.email}" class="flex-1 bg-blue-500 text-white text-center py-2 px-3 rounded text-xs hover:bg-blue-600 transition">
-                            Email
-                        </a>
-                        <a href="https://wa.me/${result.whatsapp}" class="flex-1 bg-green-500 text-white text-center py-2 px-3 rounded text-xs hover:bg-green-600 transition">
-                            WhatsApp
-                        </a>
-                    </div>
-                </div>
-            `).join('');
-
-            renderResultsPagination();
-        }
-
-        function renderResultsPagination() {
-            const totalPages = Math.ceil(calculationResults.length / resultsPerPage);
-            const pagination = document.getElementById('results-pagination');
-            
-            pagination.innerHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.className = `px-2 py-1 text-xs rounded ${i === currentResultPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
-                button.onclick = () => {
-                    currentResultPage = i;
-                    renderResults();
-                };
-                pagination.appendChild(button);
-            }
-        }
+        // function renderResultsPagination() {
+        //     // Logic moved to script.js
+        // }
 
         function readArticle(articleId) {
             const article = articles.find(a => a.id === articleId);
@@ -462,6 +497,7 @@
         }
 
         function formatNumber(num) {
+            // Keep this for article formatting if needed
             return new Intl.NumberFormat('id-ID').format(Math.round(num));
         }
 

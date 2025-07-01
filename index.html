@@ -48,153 +48,22 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Styles for script.js results */
-        .results-header h3 {
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
-            color: #1f2937; /* text-gray-800 */
-            margin-bottom: 1.5rem; /* mb-6 */
-            text-align: center;
+        .loading-spinner {
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
         }
-
-        .result-card {
-            background-color: #ffffff; /* bg-white */
-            border-radius: 1rem; /* rounded-2xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-            padding: 1.5rem; /* p-6 */
-            margin-bottom: 1rem; /* mb-4 */
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
-        }
-
-        .result-card.recommended {
-            border-color: #10b981; /* accent color */
-            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.2), 0 10px 10px -5px rgba(16, 185, 129, 0.08);
-        }
-
-        .recommended-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background-color: #10b981; /* accent color */
-            color: white;
-            padding: 0.25rem 1rem;
-            border-bottom-left-radius: 1rem;
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 600; /* font-semibold */
-        }
-
-        .lender-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px dashed #e5e7eb;
-            padding-bottom: 1.5rem;
-        }
-
-        .lender-logo {
-            width: 4rem;
-            height: 4rem;
-            border-radius: 0.5rem;
-            background-color: #eff6ff; /* bg-blue-50 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #3b82f6; /* text-secondary */
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-
-        .lender-details h4 {
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 700; /* font-bold */
-            color: #1f2937; /* text-dark */
-            margin-bottom: 0.25rem;
-        }
-
-        .lender-contacts {
-            display: flex;
-            gap: 0.75rem;
-            font-size: 0.875rem; /* text-sm */
-        }
-
-        .lender-contacts a {
-            color: #3b82f6;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .lender-contacts a:hover {
-            color: #1e40af;
-        }
-
-        .calculation-details .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px dotted #e5e7eb;
-        }
-
-        .calculation-details .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .calculation-details .label {
-            color: #4b5563; /* text-gray-700 */
-            font-size: 0.9375rem; /* Slightly larger than text-sm */
-        }
-
-        .calculation-details .value {
-            font-weight: 600; /* font-semibold */
-            color: #1f2937; /* text-dark */
-            font-size: 0.9375rem;
-        }
-
-        .calculation-details .highlight .value {
-            color: #dc2626; /* text-red-600 for monthly payment */
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 700;
-        }
-
-        .calculation-details .total .value {
-            color: #1e40af; /* primary-color */
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 800;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 2rem;
-            color: #6b7280;
-            font-size: 1.125rem;
-            background-color: #f3f4f6;
-            border-radius: 0.75rem;
-        }
-
-        /* Loading and Error Indicators */
-        #loading {
-            display: none;
-            text-align: center;
-            padding: 1rem;
-            color: #3b82f6;
-            font-weight: 600;
-        }
-
-        #error {
-            display: none;
-            text-align: center;
-            padding: 1rem;
-            color: #dc2626;
-            background-color: #fee2e2;
-            border: 1px solid #ef4444;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
     <header class="gradient-bg text-white shadow-lg">
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
@@ -209,6 +78,7 @@
         </div>
     </header>
 
+    <!-- Hero Section -->
     <section class="gradient-bg text-white py-16">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-5xl font-bold mb-6">Tingkatkan Literasi Keuangan Anda</h2>
@@ -219,8 +89,10 @@
         </div>
     </section>
 
+    <!-- Main Content -->
     <div class="container mx-auto px-6 py-12">
         <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Left Panel - Articles -->
             <div class="lg:col-span-2">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="text-3xl font-bold text-gray-800">Artikel Terbaru</h3>
@@ -231,16 +103,34 @@
                 </div>
                 
                 <div id="articles-container" class="space-y-6">
+                    <!-- Loading state -->
+                    <div id="articles-loading" class="flex justify-center items-center py-12">
+                        <div class="loading-spinner"></div>
+                        <span class="ml-2 text-gray-600">Memuat artikel...</span>
                     </div>
+                </div>
+
+                <!-- Search Section -->
+                <div class="mt-8 bg-white rounded-2xl shadow-lg p-6">
+                    <h4 class="text-xl font-bold text-gray-800 mb-4">Cari Artikel</h4>
+                    <div class="flex gap-4">
+                        <input type="text" id="search-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Cari artikel...">
+                        <button id="search-btn" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition">
+                            Cari
+                        </button>
+                    </div>
+                </div>
             </div>
 
+            <!-- Right Panel - Calculator -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-xl p-6 sticky top-6">
                     <h3 class="text-2xl font-bold text-gray-800 mb-6">Kalkulator Pinjaman</h3>
                     
+                    <!-- Calculator Tabs -->
                     <div class="flex mb-6">
-                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium rounded-l-lg border tab-active" data-tab="pinjol">
-                            Personal Loan
+                        <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium rounded-l-lg border tab-active" data-tab="pinjaman">
+                            Pinjaman
                         </button>
                         <button class="calculator-tab flex-1 py-2 px-4 text-sm font-medium border-t border-b" data-tab="kpr">
                             KPR
@@ -250,14 +140,15 @@
                         </button>
                     </div>
 
+                    <!-- Calculator Form -->
                     <div class="space-y-4 mb-6">
                         <div>
-                            <label for="loanAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pinjaman</label>
-                            <input type="number" id="loanAmount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan jumlah">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pinjaman</label>
+                            <input type="number" id="loan-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan jumlah">
                         </div>
                         <div>
-                            <label for="loanTerm" class="block text-sm font-medium text-gray-700 mb-2">Tenor (Bulan)</label>
-                            <select id="loanTerm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tenor (Bulan)</label>
+                            <select id="loan-tenor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="12">12 Bulan</option>
                                 <option value="24">24 Bulan</option>
                                 <option value="36">36 Bulan</option>
@@ -265,23 +156,33 @@
                                 <option value="60">60 Bulan</option>
                             </select>
                         </div>
-                        <input type="hidden" id="loanType" value="pinjol">
-                        
-                        <button id="calculateButton" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
-                            Hitung Pinjaman
+                        <button id="calculate-btn" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
+                            <span id="calculate-btn-text">Hitung Pinjaman</span>
+                            <div id="calculate-btn-loading" class="loading-spinner mx-auto hidden"></div>
                         </button>
                     </div>
 
-                    <div id="loading" class="text-center text-blue-600 font-semibold hidden">Calculating...</div>
-                    <div id="error" class="text-red-600 bg-red-100 border border-red-400 p-3 rounded-lg text-center hidden"></div>
-
-                    <div id="results" class="results-container">
+                    <!-- Results -->
+                    <div id="results-container" class="hidden">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Hasil Perhitungan</h4>
+                        <div id="results-list" class="space-y-3">
+                            <!-- Results will be populated here -->
                         </div>
+                        <div id="results-pagination" class="flex justify-center mt-4 space-x-1">
+                            <!-- Pagination for results -->
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mt-4">
+                        <span id="error-text"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-4 gap-8">
@@ -320,106 +221,106 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
     <script>
-        // Sample data - In production, this would come from your Google Sheets API
-        const articles = [
-            {
-                id: 1,
-                title: "Cara Memulai Investasi untuk Pemula",
-                excerpt: "Panduan lengkap untuk memulai investasi dengan modal kecil dan strategi yang tepat untuk pemula.",
-                image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400",
-                date: "2025-06-28",
-                category: "Investasi"
-            },
-            {
-                id: 2,
-                title: "Mengelola Keuangan Pribadi dengan Efektif",
-                excerpt: "Tips dan trik mengelola keuangan pribadi agar lebih teratur dan mencapai tujuan finansial.",
-                image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400",
-                date: "2025-06-27",
-                category: "Perencanaan"
-            },
-            {
-                id: 3,
-                title: "Memahami Instrumen Investasi Saham",
-                excerpt: "Pelajari dasar-dasar investasi saham, risiko, dan strategi untuk memaksimalkan keuntungan.",
-                image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400",
-                date: "2025-06-26",
-                category: "Saham"
-            },
-            {
-                id: 4,
-                title: "Dana Darurat: Pentingnya Persiapan Finansial",
-                excerpt: "Mengapa dana darurat penting dan bagaimana cara membangun dana darurat yang ideal.",
-                image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400",
-                date: "2025-06-25",
-                category: "Dana Darurat"
-            },
-            {
-                id: 5,
-                title: "Strategi Menabung untuk Generasi Milenial",
-                excerpt: "Tips menabung yang efektif untuk generasi milenial dengan gaya hidup modern.",
-                image: "https://images.unsplash.com/photo-1559526324-593bc073d938?w=400",
-                date: "2025-06-24",
-                category: "Menabung"
-            },
-            {
-                id: 6,
-                title: "Investasi Reksa Dana vs Deposito",
-                excerpt: "Perbandingan lengkap antara investasi reksa dana dan deposito untuk pemula.",
-                image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400",
-                date: "2025-06-23",
-                category: "Investasi"
-            },
-            {
-                id: 7,
-                title: "Asuransi Jiwa: Perlindungan Finansial Keluarga",
-                excerpt: "Panduan memilih asuransi jiwa yang tepat untuk melindungi keluarga dari risiko finansial.",
-                image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400",
-                date: "2025-06-22",
-                category: "Asuransi"
-            },
-            {
-                id: 8,
-                title: "Kredit dan Hutang: Mengelola dengan Bijak",
-                excerpt: "Cara mengelola kredit dan hutang agar tidak membebani keuangan pribadi.",
-                image: "https://images.unsplash.com/photo-1554224154-26032fced8bd?w=400",
-                date: "2025-06-21",
-                category: "Kredit"
-            }
-        ];
-
+        // Configuration
+        const API_BASE_URL = 'sandy-adaptable-pomelo.glitch.me/api'; // Change this to your actual backend URL
+        
+        // State management
         let currentArticlePage = 1;
+        let currentResultPage = 1;
+        let currentTab = 'pinjaman';
+        let calculationResults = [];
+        let searchQuery = '';
         const articlesPerPage = 6;
+        const resultsPerPage = 3;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            renderArticles();
+            loadArticles();
             setupCalculatorTabs();
-            // The calculator setup is now handled by script.js's initializeApp
-            // No need to call setupCalculator() or calculateLoan() directly here.
+            setupCalculator();
+            setupSearch();
         });
 
-        function renderArticles() {
-            const container = document.getElementById('articles-container');
-            const startIndex = (currentArticlePage - 1) * articlesPerPage;
-            const endIndex = startIndex + articlesPerPage;
-            const articlesToShow = articles.slice(startIndex, endIndex);
+        // API Functions
+        async function apiRequest(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
 
-            container.innerHTML = articlesToShow.map(article => `
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                throw error;
+            }
+        }
+
+        async function loadArticles() {
+            try {
+                showArticlesLoading(true);
+                let endpoint = `/articles?page=${currentArticlePage}&limit=${articlesPerPage}`;
+                
+                if (searchQuery) {
+                    endpoint = `/search?q=${encodeURIComponent(searchQuery)}&page=${currentArticlePage}&limit=${articlesPerPage}`;
+                }
+
+                const data = await apiRequest(endpoint);
+                renderArticles(data.articles);
+                renderArticlePagination(data.totalPages, data.currentPage);
+            } catch (error) {
+                showError('Gagal memuat artikel. Silakan coba lagi.');
+                console.error('Error loading articles:', error);
+            } finally {
+                showArticlesLoading(false);
+            }
+        }
+
+        function showArticlesLoading(show) {
+            const loading = document.getElementById('articles-loading');
+            const container = document.getElementById('articles-container');
+            
+            if (show) {
+                loading.style.display = 'flex';
+                container.classList.add('opacity-50');
+            } else {
+                loading.style.display = 'none';
+                container.classList.remove('opacity-50');
+            }
+        }
+
+        function renderArticles(articles) {
+            const container = document.getElementById('articles-container');
+            
+            if (!articles || articles.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <p class="text-gray-500 text-lg">Tidak ada artikel yang ditemukan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = articles.map(article => `
                 <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover animate-fade-in">
-                    <div class="md:flex">
-                        <div class="md:w-1/3">
-                            <img src="${article.image}" alt="${article.title}" class="w-full h-48 md:h-full object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${article.tags ? article.tags[0] : 'Artikel'}</span>
+                            <span class="text-gray-500 text-sm ml-3">${formatDate(article.date)}</span>
+                            <span class="text-gray-500 text-sm ml-3">${article.readTime || '5 min'}</span>
                         </div>
-                        <div class="md:w-2/3 p-6">
-                            <div class="flex items-center mb-2">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${article.category}</span>
-                                <span class="text-gray-500 text-sm ml-3">${formatDate(article.date)}</span>
-                            </div>
-                            <h4 class="text-xl font-bold text-gray-800 mb-3">${article.title}</h4>
-                            <p class="text-gray-600 mb-4">${article.excerpt}</p>
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">${article.title}</h4>
+                        <p class="text-gray-600 mb-4">${article.excerpt}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Oleh: ${article.author || 'Tim Finansial'}</span>
                             <button onclick="readArticle(${article.id})" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full font-medium hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-105">
                                 Baca Selengkapnya
                             </button>
@@ -427,77 +328,234 @@
                     </div>
                 </article>
             `).join('');
-
-            renderArticlePagination();
         }
 
-        function renderArticlePagination() {
-            const totalPages = Math.ceil(articles.length / articlesPerPage);
+        function renderArticlePagination(totalPages, currentPage) {
             const pagination = document.getElementById('article-pagination');
             
             pagination.innerHTML = '';
             for (let i = 1; i <= totalPages; i++) {
                 const button = document.createElement('button');
                 button.textContent = i;
-                button.className = `px-3 py-1 text-sm rounded ${i === currentArticlePage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                button.className = `px-3 py-1 text-sm rounded ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
                 button.onclick = () => {
                     currentArticlePage = i;
-                    renderArticles();
+                    loadArticles();
                 };
                 pagination.appendChild(button);
             }
         }
 
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            searchQuery = query;
+            currentArticlePage = 1;
+            loadArticles();
+        }
+
         function setupCalculatorTabs() {
             const tabs = document.querySelectorAll('.calculator-tab');
-            const loanTypeInput = document.getElementById('loanType'); // Get the hidden input
-
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     tabs.forEach(t => t.classList.remove('tab-active'));
                     this.classList.add('tab-active');
-                    // Update the hidden input value
-                    loanTypeInput.value = this.dataset.tab;
-                    // Trigger validation to enable/disable button based on new type
-                    if (typeof validateInputs === 'function') { // Check if script.js function is available
-                        validateInputs();
-                    }
-                    // Clear previous results when tab changes
-                    document.getElementById('results').innerHTML = '';
+                    currentTab = this.dataset.tab;
+                    hideResults();
+                    hideError();
                 });
             });
         }
-        
-        // This function is no longer needed as script.js handles it.
-        // function setupCalculator() {
-        //     document.getElementById('calculate-btn').addEventListener('click', calculateLoan);
-        // }
 
-        // This function is no longer needed as script.js handles the calculation and rendering.
-        // function calculateLoan() {
-        //    // Logic moved to script.js
-        // }
+        function setupCalculator() {
+            document.getElementById('calculate-btn').addEventListener('click', calculateLoan);
+        }
 
-        // The renderResults for calculator is now handled by script.js.
-        // Only keep the article-related functions and utility functions.
-        // function renderResults() {
-        //     // Logic moved to script.js
-        // }
+        async function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loan-amount').value);
+            const tenor = parseInt(document.getElementById('loan-tenor').value);
 
-        // function renderResultsPagination() {
-        //     // Logic moved to script.js
-        // }
+            if (!amount || amount <= 0) {
+                showError('Masukkan jumlah pinjaman yang valid');
+                return;
+            }
 
-        function readArticle(articleId) {
-            const article = articles.find(a => a.id === articleId);
-            if (article) {
-                // In a real app, this would navigate to a dedicated article page
-                alert(`Membuka artikel: "${article.title}"\n\nDalam implementasi sebenarnya, ini akan membuka halaman artikel terpisah dengan konten lengkap.`);
+            if (!tenor || tenor <= 0) {
+                showError('Pilih tenor yang valid');
+                return;
+            }
+
+            try {
+                showCalculateLoading(true);
+                hideError();
+                hideResults();
+
+                const data = await apiRequest(`/calculate/${currentTab}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        principal: amount,
+                        tenor: tenor
+                    })
+                });
+
+                calculationResults = data;
+                currentResultPage = 1;
+                renderResults();
+                showResults();
+            } catch (error) {
+                showError('Gagal menghitung pinjaman. Silakan coba lagi.');
+                console.error('Error calculating loan:', error);
+            } finally {
+                showCalculateLoading(false);
             }
         }
 
+        function showCalculateLoading(show) {
+            const btn = document.getElementById('calculate-btn');
+            const btnText = document.getElementById('calculate-btn-text');
+            const btnLoading = document.getElementById('calculate-btn-loading');
+
+            if (show) {
+                btn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoading.classList.remove('hidden');
+            } else {
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.classList.add('hidden');
+            }
+        }
+
+        function renderResults() {
+            const container = document.getElementById('results-list');
+            const startIndex = (currentResultPage - 1) * resultsPerPage;
+            const endIndex = startIndex + resultsPerPage;
+            const resultsToShow = calculationResults.slice(startIndex, endIndex);
+
+            container.innerHTML = resultsToShow.map((result, index) => `
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
+                        <h5 class="font-semibold text-gray-800">${result.name}</h5>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                            Rank ${startIndex + index + 1}
+                        </span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Pinjaman Diterima:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.calculation.loanReceived)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Cicilan/Bulan:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.calculation.monthlyPayment)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Biaya Admin:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.calculation.adminFee)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Suku Bunga:</span>
+                            <span class="font-medium">${result.interestRate}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Bayar:</span>
+                            <span class="font-medium">Rp ${formatNumber(result.calculation.totalPayment)}</span>
+                        </div>
+                    </div>
+                    <div class="flex mt-3 space-x-2">
+                        ${result.email ? `<a href="mailto:${result.email}" class="flex-1 bg-blue-500 text-white text-center py-2 px-3 rounded text-xs hover:bg-blue-600 transition">Email</a>` : ''}
+                        ${result.whatsapp ? `<a href="https://wa.me/${result.whatsapp}" class="flex-1 bg-green-500 text-white text-center py-2 px-3 rounded text-xs hover:bg-green-600 transition">WhatsApp</a>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            renderResultsPagination();
+        }
+
+        function renderResultsPagination() {
+            const totalPages = Math.ceil(calculationResults.length / resultsPerPage);
+            const pagination = document.getElementById('results-pagination');
+            
+            pagination.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `px-2 py-1 text-xs rounded ${i === currentResultPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                button.onclick = () => {
+                    currentResultPage = i;
+                    renderResults();
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        async function readArticle(articleId) {
+            try {
+                const article = await apiRequest(`/articles/${articleId}`);
+                // Create a modal or new page to display the full article
+                showArticleModal(article);
+            } catch (error) {
+                showError('Gagal memuat artikel. Silakan coba lagi.');
+                console.error('Error loading article:', error);
+            }
+        }
+
+        function showArticleModal(article) {
+            // Create a simple modal for article display
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">${article.title}</h2>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                    </div>
+                    <div class="flex items-center mb-4 text-sm text-gray-600">
+                        <span>Oleh: ${article.author}</span>
+                        <span class="mx-2">•</span>
+                        <span>${formatDate(article.date)}</span>
+                        <span class="mx-2">•</span>
+                        <span>${article.readTime}</span>
+                    </div>
+                    <div class="prose max-w-none">
+                        ${article.content}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function showResults() {
+            document.getElementById('results-container').classList.remove('hidden');
+        }
+
+        function hideResults() {
+            document.getElementById('results-container').classList.add('hidden');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
         function formatNumber(num) {
-            // Keep this for article formatting if needed
             return new Intl.NumberFormat('id-ID').format(Math.round(num));
         }
 
